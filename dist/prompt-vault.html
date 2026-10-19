@@ -1969,15 +1969,20 @@ VAULT.roadmap = [
   }
   $("#exportBtn").addEventListener("click", () => {
     $("#ioTitle").textContent = "Export your prompts";
-    $("#ioHint").textContent = `${store.custom.length} of your own prompts, ${store.favs.length} favorites and your saved blanks. Copy this text or download it as a file, then use Import on any device.`;
+    $("#ioHint").textContent = `${store.custom.length} of your own prompts, ${store.favs.length} favorites and your saved blanks. Copy this text (or download it) and use Import on any device.`;
     const ta = $("#ioText");
     ta.value = exportData();
     ta.readOnly = true;
     $("#ioFileWrap").hidden = true;
     $("#ioError").hidden = true;
-    $("#ioFoot").innerHTML = '<button class="btn btn-ghost" type="button" data-close>Close</button><button class="btn" type="button" id="ioDownload">Download .json</button><button class="btn btn-primary" type="button" id="ioCopy">Copy</button>';
+    // Embedded viewers (iframes) usually block downloads, so offer Copy only there.
+    let canDownload = true;
+    try { canDownload = window.self === window.top; } catch (e) { canDownload = false; }
+    $("#ioFoot").innerHTML = '<button class="btn btn-ghost" type="button" data-close>Close</button>' +
+      (canDownload ? '<button class="btn" type="button" id="ioDownload">Download .json</button>' : "") +
+      '<button class="btn btn-primary" type="button" id="ioCopy">Copy</button>';
     $("#ioCopy").addEventListener("click", () => copyText(ta.value, "Backup copied"));
-    $("#ioDownload").addEventListener("click", () => {
+    if (canDownload) $("#ioDownload").addEventListener("click", () => {
       try {
         const url = URL.createObjectURL(new Blob([ta.value], { type: "application/json" }));
         const a = document.createElement("a");
