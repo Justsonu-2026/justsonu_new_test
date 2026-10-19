@@ -77,7 +77,7 @@ This writes `dist/prompt-vault.html`, a single file with everything inlined. You
 
 ```
 index.html          page structure
-assets/styles.css   design tokens (light + dark) and layout
+assets/styles.css   dark cinematic theme and layout
 assets/data.js      prompts, categories, workflows, vocabulary, formulas, roadmap
 assets/examples.js  what each prompt does, sample results and tips
 assets/app.js       library, example popup, studio, workflows, quick search, builder, import/export
