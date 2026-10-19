@@ -8,22 +8,28 @@ Open `index.html` in a browser. There's no build step, no server and no dependen
 
 | Section | What it does |
 | --- | --- |
-| **Library** | 65 templates across 12 skills. Search, filter by skill, favorites or recently copied, and sort. Open a prompt to fill in its blanks with a live, highlighted preview, then copy it. |
-| **Builder** | Put together an image or video prompt field by field, with suggestions from standard film vocabulary. Save the result as a reusable template. |
-| **Vocabulary** | About 100 shot sizes, camera moves, lenses, lighting setups, looks, grades, aspect ratios, transitions and audio terms. Click a term to copy it. Also has prompt formulas with their sources. |
-| **Roadmap** | What's shipped, what's next, and new prompt packs worth adding. |
+| **Library** | 65 templates across 12 skills. Browse by skill, search, filter by favorites, top rated or recently copied, and sort. |
+| **Example popup** | Click **Example** (or a title) to see what a prompt does, a sample of the result, what it's best for, the example input and a tip. Use ← → to flip through. |
+| **Prompt studio** | Click **Use** to fill in the blanks with a live preview, copy it, log how well it worked (stars, model, notes), or **Improve with Claude**. |
+| **Workflows** | Six step-by-step chains (ad from scratch, product launch, previz to final shot, character series, win a client, portfolio site). Project details fill matching blanks in every step. |
+| **Quick search** | `Ctrl/⌘ + K` jumps to any prompt, workflow or action. |
+| **Builder** | Put together an image or video prompt field by field with film-vocabulary suggestions, then save it as a template. |
+| **Vocabulary** | About 100 camera, lens, lighting, look and audio terms (click to copy) plus prompt formulas with sources. |
+| **Roadmap** | What's shipped, what's next, and prompt packs worth adding. |
 
-Your favorites, copy counts, filled-in blanks and your own prompts are saved in your browser (`localStorage`). Use **Export / Import** in the footer to back them up or move them to another device.
+Favorites, ratings, workflow progress, filled-in blanks and your own prompts are saved in your browser (`localStorage`). Use **Export / Import** in the footer to back them up or move them to another device.
+
+**Improve with Claude** rewrites the prompt inside the page when it's opened as a published Claude artifact. Anywhere else (GitHub Pages, a local file) it copies a ready-made request you can paste into any Claude chat.
 
 ### Keyboard
 
-- `/` jumps to search
-- `Esc` closes a panel
-- `Ctrl/⌘ + Enter` copies the open prompt
+- `/` jumps to search, `Ctrl/⌘ + K` opens quick search
+- `←` `→` flip through example popups
+- `Esc` closes a panel, `Ctrl/⌘ + Enter` copies the open prompt
 
 ### Deep links
 
-Every prompt has its own link, for example `index.html#vid-02`. Tabs work the same way: `#builder`, `#vocab`, `#roadmap`.
+Every prompt has its own link, for example `index.html#vid-02`. Workflows too (`#wf-ad`), and tabs: `#workflows`, `#builder`, `#vocab`, `#roadmap`.
 
 ## Adding prompts
 
@@ -37,6 +43,18 @@ Prompts live in `assets/data.js`. Add an object to `VAULT.prompts`:
 ```
 
 Write blanks as `{{Name|default value}}`. If the same name appears twice it shares one value. Categories are listed in `VAULT.categories`.
+
+Add the popup example for it in `assets/examples.js`, keyed by the same id:
+
+```js
+"vid-09": {
+  does: "What the prompt does, in one or two sentences.",
+  when: ["Use case one", "Use case two"],
+  output: "A sample of the result it produces.",
+  tip: "One practical tip." }
+```
+
+Workflows live in `VAULT.workflows` in `assets/data.js`.
 
 You can also write prompts in the app itself with **New prompt**, or **Duplicate & edit** on any template.
 
@@ -60,8 +78,9 @@ This writes `dist/prompt-vault.html`, a single file with everything inlined. You
 ```
 index.html          page structure
 assets/styles.css   design tokens (light + dark) and layout
-assets/data.js      prompts, categories, vocabulary, formulas, roadmap
-assets/app.js       search, drawer, editor, builder, import/export, routing
+assets/data.js      prompts, categories, workflows, vocabulary, formulas, roadmap
+assets/examples.js  what each prompt does, sample results and tips
+assets/app.js       library, example popup, studio, workflows, quick search, builder, import/export
 tools/build.py      bundles everything into one HTML file
 dist/               built single-file version
 ```

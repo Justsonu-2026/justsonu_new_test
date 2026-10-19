@@ -22,7 +22,7 @@ def parts():
     fonts = re.search(r'<link rel="stylesheet" href="https://fonts[^>]*>', html).group(0)
     body = re.search(r"<!--APP-START-->(.*?)<!--APP-END-->", html, re.S).group(1)
     css = read("assets/styles.css")
-    js = read("assets/data.js") + "\n" + read("assets/app.js")
+    js = "\n".join(read(f) for f in ("assets/data.js", "assets/examples.js", "assets/app.js"))
     if "</script" in js.lower() or "</style" in css.lower():
         sys.exit("Refusing to inline: closing tag found inside CSS/JS")
     return title, desc, fonts, body, css, js

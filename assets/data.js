@@ -3,19 +3,19 @@
 var VAULT = window.VAULT = {};
 
 VAULT.categories = [
-  { id: "video",     code: "VID", name: "AI Video",              skill: "Seedance, Kling, Higgsfield, Magnific video" },
-  { id: "image",     code: "IMG", name: "AI Image",              skill: "Image models, edits, upscaling" },
-  { id: "previz",    code: "PRV", name: "Blender Previz",        skill: "blender-ai, blender-scene-building" },
-  { id: "ads",       code: "ADS", name: "Ads & UGC",             skill: "Ads Studio, Marketing Studio" },
-  { id: "character", code: "CHR", name: "Characters",            skill: "AI influencer, character sheets" },
-  { id: "social",    code: "SOC", name: "Social & Shorts",       skill: "TikTok, Reels, Shorts, virality" },
-  { id: "audio",     code: "AUD", name: "Voice, Music & SFX",    skill: "TTS, music, sound effects" },
-  { id: "brand",     code: "BRD", name: "Brand & Design System", skill: "design-system, brand kits" },
-  { id: "design",    code: "DSN", name: "Design Review",         skill: "design-critique, accessibility-review, ux-copy, design-handoff" },
-  { id: "research",  code: "RSC", name: "Research",              skill: "deep-research, user-research, research-synthesis" },
-  { id: "docs",      code: "DOC", name: "Docs, Decks & Sheets",  skill: "docs, pptx, xlsx, pdf, dataviz" },
-  { id: "build",     code: "DEV", name: "Build with Claude Code", skill: "websites, skill-creator, automation, RunPod" },
-  { id: "custom",    code: "OWN", name: "My prompts",            skill: "Written by you" }
+  { id: "video",     code: "VID", color: "#ff4d6d", name: "AI Video",              skill: "Seedance, Kling, Higgsfield, Magnific video" },
+  { id: "image",     code: "IMG", color: "#9b7bff", name: "AI Image",              skill: "Image models, edits, upscaling" },
+  { id: "previz",    code: "PRV", color: "#22c3ee", name: "Blender Previz",        skill: "blender-ai, blender-scene-building" },
+  { id: "ads",       code: "ADS", color: "#ff9f1c", name: "Ads & UGC",             skill: "Ads Studio, Marketing Studio" },
+  { id: "character", code: "CHR", color: "#ff5cc8", name: "Characters",            skill: "AI influencer, character sheets" },
+  { id: "social",    code: "SOC", color: "#34d399", name: "Social & Shorts",       skill: "TikTok, Reels, Shorts, virality" },
+  { id: "audio",     code: "AUD", color: "#facc15", name: "Voice, Music & SFX",    skill: "TTS, music, sound effects" },
+  { id: "brand",     code: "BRD", color: "#c084fc", name: "Brand & Design System", skill: "design-system, brand kits" },
+  { id: "design",    code: "DSN", color: "#2dd4bf", name: "Design Review",         skill: "design-critique, accessibility-review, ux-copy, design-handoff" },
+  { id: "research",  code: "RSC", color: "#60a5fa", name: "Research",              skill: "deep-research, user-research, research-synthesis" },
+  { id: "docs",      code: "DOC", color: "#a3e635", name: "Docs, Decks & Sheets",  skill: "docs, pptx, xlsx, pdf, dataviz" },
+  { id: "build",     code: "DEV", color: "#fb7c4a", name: "Build with Claude Code", skill: "websites, skill-creator, automation, RunPod" },
+  { id: "custom",    code: "OWN", color: "#e5e7eb", name: "My prompts",            skill: "Written by you" }
 ];
 
 VAULT.prompts = [
@@ -795,30 +795,97 @@ VAULT.formulas = [
     sources: [["Tolstoy: structuring UGC ads", "https://www.gotolstoy.com/blog/how-to-structure-ugc-ads"], ["Magic Hour: UGC-style ads with AI", "https://magichour.ai/blog/how-to-make-ugc-style-video-ads"]] }
 ];
 
+/* ---------------- WORKFLOWS ----------------
+   Each step opens a prompt. Project fields fill any blank with the same name. */
+VAULT.workflows = [
+  { id: "wf-ad", title: "AI ad from scratch",
+    desc: "From brand rules to a posted UGC-style video ad: concepts, script, keyframe, motion, voice and a final hook check.",
+    fields: { "Product": "a magnetic phone tripod", "Audience": "travel creators aged 20–35", "Platform": "TikTok", "Aspect ratio": "9:16" },
+    steps: [
+      ["brd-03", "Write the brand suffix you'll append to every visual prompt."],
+      ["ads-02", "Generate concepts and pick the strongest angle."],
+      ["ads-01", "Script the winning concept as a timed UGC ad."],
+      ["img-03", "Make the opening frame as a still you can approve."],
+      ["vid-03", "Animate the approved frame into the first shot."],
+      ["aud-01", "Record the voiceover from the script."],
+      ["soc-04", "Audit the hook before you post."]
+    ] },
+  { id: "wf-launch", title: "Product launch video",
+    desc: "Packshots, a hero product shot, music and a short-form script, then repurpose it across every platform.",
+    fields: { "Product": "a matte black wireless earbud case", "Aspect ratio": "9:16", "Platform": "Instagram Reels" },
+    steps: [
+      ["img-02", "Create the clean packshot set first; it's your visual reference."],
+      ["vid-05", "Turn the packshot into a premium hero shot."],
+      ["aud-02", "Score the reveal with music that ends on the beat."],
+      ["soc-01", "Write the short-form launch video around the hero shot."],
+      ["soc-02", "Cut it into clips, a carousel and posts for every platform."]
+    ] },
+  { id: "wf-previz", title: "Previz to final shot",
+    desc: "Lock a complex camera move in Blender, compare options, hand it to a video model and fix what drifts.",
+    fields: { "Target model": "Seedance 2.0", "Duration": "5", "Aspect ratio": "16:9" },
+    steps: [
+      ["prv-01", "Brief and block the shot with grey proxies."],
+      ["prv-02", "Try camera options and pick one."],
+      ["prv-03", "Write the handoff prompt that follows the previz exactly."],
+      ["vid-07", "Fix anything that drifted in the generation."]
+    ] },
+  { id: "wf-character", title: "Consistent character series",
+    desc: "Create a character once and keep them identical across images, talking scenes and a two-week content plan.",
+    fields: { "Name": "Kai", "Character name": "Kai", "Character": "Kai, 24, short dyed-blonde hair, black chef jacket with orange piping" },
+    steps: [
+      ["chr-01", "Write the character bible and copy the locked description."],
+      ["chr-02", "Generate the turnaround sheet to use as reference."],
+      ["chr-04", "Place the character in a new scene."],
+      ["vid-08", "Make them talk in a short dialogue scene."],
+      ["chr-03", "Plan two weeks of posts with the same character."]
+    ] },
+  { id: "wf-client", title: "Win and run a client",
+    desc: "Research the market, send a proposal and a deck, lock the brief, and track production.",
+    fields: { "Client": "Bloom Skincare", "My business": "my AI creative studio", "Topic": "my AI creative studio" },
+    steps: [
+      ["rsc-02", "Know the competitors before you price."],
+      ["doc-02", "Send a proposal with three tiers."],
+      ["doc-03", "Back it up with a short pitch deck."],
+      ["doc-01", "Once they say yes, agree the creative brief."],
+      ["doc-04", "Track every deliverable, tool and cost."]
+    ] },
+  { id: "wf-site", title: "Launch your portfolio site",
+    desc: "Brand foundation, design system and landing copy, then build, audit and review the site with Claude Code.",
+    fields: { "Brand": "Sage Studio", "Name": "Sage", "Product": "my portfolio website" },
+    steps: [
+      ["brd-01", "Set positioning, palette and type."],
+      ["brd-02", "Turn it into design tokens."],
+      ["dsn-05", "Write the landing page copy section by section."],
+      ["dev-01", "Build the site."],
+      ["dsn-02", "Check accessibility."],
+      ["dev-05", "Review the code and ship."]
+    ] }
+];
+
 /* ---------------- ROADMAP ---------------- */
 VAULT.roadmap = [
   { stage: "Shipped", note: "In this version.", items: [
-    ["done", "Fill-in templates", "Every blank becomes a form field with a live, highlighted preview."],
-    ["done", "Search, filters and sorting", "Across titles, tags, tools and prompt text; filter by skill, favorites, recent or your own."],
-    ["done", "Your own prompts", "Write, duplicate, edit and delete templates using the {{Name|default}} syntax."],
+    ["done", "Example previews", "Every prompt shows what it does, when to use it, a sample input and the kind of result you get."],
+    ["done", "Workflows", "Six step-by-step pipelines. Project details carry into every step automatically."],
+    ["done", "Quick search palette", "Press Ctrl/⌘ + K to jump to any prompt, workflow or action."],
+    ["done", "Ratings and results log", "Rate each run, note the model and settings, and sort by your best prompts."],
+    ["done", "Improve with Claude", "Rewrites a filled prompt inside the page in the published version; elsewhere it copies a ready request."],
+    ["done", "Your own prompts", "Write, duplicate, edit and delete templates with the {{Name|default}} syntax."],
     ["done", "Prompt builder", "Assemble image and video prompts from standard film vocabulary."],
-    ["done", "Backup", "Export and import favorites and custom prompts as JSON."],
-    ["done", "Deep links", "Every prompt has its own link, like #vid-02, to share or bookmark."]
+    ["done", "Backup and deep links", "Export and import as JSON; every prompt has its own link like #vid-02."]
   ]},
   { stage: "Next", note: "Small additions with a big payoff.", items: [
     ["next", "Result gallery per prompt", "Attach the image or video a prompt produced, so you can see which wording worked."],
     ["next", "Version history", "Keep every edit of a prompt with a note on what changed and why."],
-    ["next", "Model variants", "One template, tuned versions per model (Kling, Seedance, image models), since each responds to different wording."],
-    ["next", "Rating and notes", "Score each run 1–5 and note the model, seed and settings; sort by best results."],
-    ["next", "Prompt chains", "Link templates into a pipeline: brief, then image keyframe, then video shot, then voiceover, then caption."],
-    ["next", "Brand presets", "Save brand suffixes and character locks once and insert them into any prompt with one click."]
+    ["next", "Model variants", "One template, tuned versions per model, since each responds to different wording."],
+    ["next", "Brand presets", "Save brand suffixes and character locks once and insert them into any prompt with one click."],
+    ["next", "Custom workflows", "Build your own pipelines from any prompts, including ones you wrote."]
   ]},
   { stage: "Later", note: "Bigger features for a team or a business.", items: [
     ["later", "Shared team library", "One library your collaborators can read and add to, with comments on each prompt."],
-    ["later", "Improve with AI", "A button that sends a prompt to Claude for a sharper rewrite, using the prompt improver template."],
     ["later", "Client mode", "Share a read-only collection with a client so they can pick a direction."],
     ["later", "Cost tracker", "Log credits per generation and see spend per client or project."],
-    ["later", "Multilingual prompts", "Translate templates while keeping the camera and lighting terms in English, which models follow best."],
+    ["later", "Multilingual prompts", "Translate templates while keeping camera and lighting terms in English, which models follow best."],
     ["later", "Install as an app", "Offline use and a home-screen icon on phone and desktop."],
     ["later", "Template marketplace", "Sell or give away curated prompt packs built from your best-performing templates."]
   ]},
@@ -828,7 +895,6 @@ VAULT.roadmap = [
     ["later", "Food and beverage", "Pours, steam, macro textures and menu shots."],
     ["later", "Fashion lookbooks", "Consistent model across outfits, editorial poses, runway motion."],
     ["later", "Explainers and tutorials", "Screen-recording scripts, diagrams and talking-head structures."],
-    ["later", "3D assets", "Image-to-3D, product turntables, game-ready props."],
-    ["later", "Client communication", "Feedback replies, scope-change emails, invoice reminders."]
+    ["later", "3D assets", "Image-to-3D, product turntables, game-ready props."]
   ]}
 ];
