@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creative Prompt Vault</title>
+<meta name="description" content="A searchable library of fill-in prompt templates for AI video, AI images, Blender previz, ads, characters, design, research and client work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<!--APP-START-->
+<div id="app">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#library" aria-label="Creative Prompt Vault home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-name">Prompt Vault</span>
+      </a>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#library" data-tab="library">Library</a>
+        <a href="#builder" data-tab="builder">Builder</a>
+        <a href="#vocab" data-tab="vocab">Vocabulary</a>
+        <a href="#roadmap" data-tab="roadmap">Roadmap</a>
+      </nav>
+      <button class="btn btn-primary" id="newPromptBtn" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M2 8h12"/></svg><span>New prompt</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- LIBRARY -->
+  <main id="view-library" class="view" data-view="library">
+    <section class="intro">
+      <div class="intro-text">
+        <h1>Prompts for every stage of a creative production</h1>
+        <p>Pick a template, fill in the blanks, copy. Each prompt is written for a skill or tool you already use: video and image models, Blender previz, ads, characters, design review, research and client docs.</p>
+      </div>
+      <dl class="stats" id="stats"></dl>
+    </section>
+
+    <div class="library">
+      <aside class="sidebar" aria-label="Filter by skill">
+        <div class="side-group" id="sideViews"></div>
+        <p class="side-label">Skills</p>
+        <div class="side-group" id="sideCats"></div>
+      </aside>
+
+      <section class="results" aria-live="polite">
+        <div class="toolbar">
+          <label class="search" for="search">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>
+            <input id="search" type="search" placeholder="Search prompts, tags, tools…" autocomplete="off">
+            <kbd>/</kbd>
+          </label>
+          <label class="sort" for="sort"><span>Sort</span>
+            <select id="sort">
+              <option value="featured">Featured</option>
+              <option value="az">A–Z</option>
+              <option value="used">Most copied</option>
+              <option value="vars">Fewest blanks</option>
+            </select>
+          </label>
+        </div>
+        <div class="chiprow" id="catChips" aria-label="Skills"></div>
+        <p class="result-meta" id="resultMeta"></p>
+        <div class="grid" id="grid"></div>
+        <div class="empty" id="empty" hidden>
+          <h3>No prompts match</h3>
+          <p>Try a shorter search, pick another skill, or write your own template.</p>
+          <button class="btn" type="button" id="emptyNew">Write a prompt</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- BUILDER -->
+  <main id="view-builder" class="view" data-view="builder" hidden>
+    <section class="page-head">
+      <h1>Prompt builder</h1>
+      <p>Assemble an image or video prompt one field at a time. Every field suggests standard terms from the vocabulary; type your own to override.</p>
+    </section>
+    <div class="builder">
+      <form class="builder-form" id="builderForm" autocomplete="off">
+        <div class="seg" role="radiogroup" aria-label="Prompt type">
+          <label><input type="radio" name="bmode" value="video" id="bmode-video" checked><span>Video shot</span></label>
+          <label><input type="radio" name="bmode" value="image" id="bmode-image"><span>Image</span></label>
+        </div>
+        <div id="builderFields" class="fields"></div>
+      </form>
+      <div class="builder-out">
+        <div class="out-head">
+          <h2>Your prompt</h2>
+          <span class="count" id="builderCount"></span>
+        </div>
+        <pre class="prompt-out" id="builderOut"></pre>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="builderCopy">Copy prompt</button>
+          <button class="btn" type="button" id="builderSave">Save as template</button>
+          <button class="btn btn-ghost" type="button" id="builderReset">Clear</button>
+        </div>
+        <p class="hint">Starts with a worked example; overwrite any field. Fields you leave empty are dropped. "Save as template" turns each field into a fill-in blank so you can reuse the structure.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- VOCAB -->
+  <main id="view-vocab" class="view" data-view="vocab" hidden>
+    <section class="page-head">
+      <h1>Vocabulary &amp; formulas</h1>
+      <p>The words models understand best. Click any term to copy it.</p>
+    </section>
+    <div id="formulas" class="formulas"></div>
+    <div class="vocab-tools">
+      <label class="search" for="vocabSearch">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>
+        <input id="vocabSearch" type="search" placeholder="Filter terms…" autocomplete="off">
+      </label>
+    </div>
+    <div id="vocab" class="vocab"></div>
+  </main>
+
+  <!-- ROADMAP -->
+  <main id="view-roadmap" class="view" data-view="roadmap" hidden>
+    <section class="page-head">
+      <h1>Roadmap</h1>
+      <p>What this library can grow into, based on how creative teams use prompt libraries and where AI video and image tools are heading.</p>
+    </section>
+    <div id="roadmap" class="roadmap"></div>
+  </main>
+
+  <footer class="foot">
+    <p>Your favorites, copy counts and own prompts are saved in this browser. Use <button type="button" class="linkbtn" id="exportBtn">Export</button> / <button type="button" class="linkbtn" id="importBtn">Import</button> to back them up or move them.</p>
+  </footer>
+</div>
+
+<!-- Prompt drawer -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
+  <div class="drawer-head">
+    <div class="d-meta"><span class="code" id="dCode"></span><span id="dCat"></span></div>
+    <button class="iconbtn" type="button" id="dClose" aria-label="Close">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <h2 id="dTitle"></h2>
+    <p class="d-desc" id="dDesc"></p>
+    <div class="d-tools" id="dTools"></div>
+    <div class="d-cols">
+      <form class="d-form" id="dForm" autocomplete="off"></form>
+      <div class="d-preview">
+        <div class="out-head"><h3>Preview</h3><span class="count" id="dCount"></span></div>
+        <pre class="prompt-out" id="dOut"></pre>
+        <p class="legend"><span class="l-ex">Example value</span><span class="l-ed">Your text</span><span>Tip: Ctrl/⌘ + Enter copies</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn btn-primary" type="button" id="dCopy">Copy prompt</button>
+    <button class="btn" type="button" id="dCopyRaw">Copy template</button>
+    <button class="btn btn-ghost" type="button" id="dReset">Reset blanks</button>
+    <span class="spacer"></span>
+    <button class="iconbtn" type="button" id="dFav" aria-label="Add to favorites" aria-pressed="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/></svg>
+    </button>
+    <button class="btn btn-ghost" type="button" id="dDuplicate">Duplicate &amp; edit</button>
+    <button class="btn btn-ghost" type="button" id="dEdit" hidden>Edit</button>
+    <button class="btn btn-danger" type="button" id="dDelete" hidden>Delete</button>
+  </div>
+</aside>
+
+<!-- Editor -->
+<div class="modal" id="editor" role="dialog" aria-modal="true" aria-labelledby="eTitle" hidden>
+  <form class="modal-card" id="editorForm" autocomplete="off">
+    <div class="modal-head">
+      <h2 id="eTitle">New prompt</h2>
+      <button class="iconbtn" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label class="field" for="eName"><span>Title</span><input id="eName" required maxlength="90" placeholder="e.g. Product orbit shot for skincare"></label>
+      <div class="row2">
+        <label class="field" for="eCat"><span>Skill</span><select id="eCat"></select></label>
+        <label class="field" for="eTags"><span>Tags <small>comma separated</small></span><input id="eTags" placeholder="product, 9:16, kling"></label>
+      </div>
+      <label class="field" for="eDesc"><span>What it's for</span><input id="eDesc" maxlength="200" placeholder="One line on when to use it"></label>
+      <label class="field" for="eBody"><span>Prompt <small>write blanks as {{Name|default value}}</small></span>
+        <textarea id="eBody" rows="12" required spellcheck="false" placeholder="{{Subject|A ceramic mug}} on {{Surface|a walnut table}}, {{Lighting|soft morning light}}…"></textarea>
+      </label>
+      <p class="hint" id="eVars"></p>
+      <p class="form-error" id="eError" hidden></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+      <button class="btn btn-primary" type="submit">Save prompt</button>
+    </div>
+  </form>
+</div>
+
+<!-- Import / export -->
+<div class="modal" id="io" role="dialog" aria-modal="true" aria-labelledby="ioTitle" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="ioTitle">Export</h2>
+      <button class="iconbtn" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" id="ioHint"></p>
+      <textarea id="ioText" rows="12" spellcheck="false"></textarea>
+      <label class="file" id="ioFileWrap" for="ioFile" hidden><span>Or choose a .json file</span><input type="file" id="ioFile" accept="application/json,.json"></label>
+      <p class="form-error" id="ioError" hidden></p>
+    </div>
+    <div class="modal-foot" id="ioFoot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<!--APP-END-->
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

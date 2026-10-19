@@ -1,0 +1,2295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creative Prompt Vault</title>
+<meta name="description" content="A searchable library of fill-in prompt templates for AI video, AI images, Blender previz, ads, characters, design, research and client work.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky slate-style top bar, skill sidebar + card grid, slide-over drawer for filling a prompt.
+   Palette: cool graphite neutrals, cobalt for actions, marker-amber for filled-in blanks. */
+:root {
+  --bg: #f1f2f5;
+  --surface: #ffffff;
+  --surface-2: #e7e9ef;
+  --ink: #14161c;
+  --muted: #586071;
+  --line: #d5d8e0;
+  --accent: #2647d0;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3e8fb;
+  --marker: #ffd66b;
+  --marker-ink: #2a2100;
+  --marker-soft: #f8edcc;
+  --blank: #2647d0;
+  --danger: #b4232a;
+  --good: #1d7a4a;
+  --shadow: 0 10px 30px rgba(20, 22, 28, .12), 0 2px 6px rgba(20, 22, 28, .06);
+
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --s-xs: .8125rem;
+  --s-sm: .875rem;
+  --s-md: 1rem;
+  --s-lg: 1.25rem;
+  --s-xl: 1.75rem;
+  --s-2xl: clamp(1.9rem, 1.2rem + 2.4vw, 2.75rem);
+
+  --r: 10px;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1015;
+    --surface: #161920;
+    --surface-2: #1e222b;
+    --ink: #e8eaf0;
+    --muted: #9aa1b1;
+    --line: #2a2f3a;
+    --accent: #8099ff;
+    --accent-ink: #0b0f1e;
+    --accent-soft: #1c2444;
+    --marker: #f2c14e;
+    --marker-ink: #1d1600;
+    --marker-soft: #332c1c;
+    --blank: #8fa5ff;
+    --danger: #ff7a7f;
+    --good: #5fd39a;
+    --shadow: 0 14px 40px rgba(0, 0, 0, .5), 0 2px 8px rgba(0, 0, 0, .3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1015;
+  --surface: #161920;
+  --surface-2: #1e222b;
+  --ink: #e8eaf0;
+  --muted: #9aa1b1;
+  --line: #2a2f3a;
+  --accent: #8099ff;
+  --accent-ink: #0b0f1e;
+  --accent-soft: #1c2444;
+  --marker: #f2c14e;
+  --marker-ink: #1d1600;
+  --marker-soft: #332c1c;
+  --blank: #8fa5ff;
+  --danger: #ff7a7f;
+  --good: #5fd39a;
+  --shadow: 0 14px 40px rgba(0, 0, 0, .5), 0 2px 8px rgba(0, 0, 0, .3);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--s-md);
+  line-height: 1.55;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 30;
+  background: var(--surface);
+}
+[hidden] { display: none !important; }
+h1, h2, h3 { font-family: var(--f-display); line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+kbd {
+  font-family: var(--f-mono); font-size: .72rem; color: var(--muted);
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 .4em; line-height: 1.5;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.topbar-inner {
+  max-width: 1360px; margin: 0 auto;
+  display: flex; align-items: center; gap: 20px;
+  padding-block: 10px;
+  padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand-name { font-family: var(--f-display); font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em; }
+/* clapper-slate stripes */
+.brand-mark {
+  display: grid; grid-template-columns: repeat(3, 7px); gap: 3px;
+  padding: 5px; border-radius: 6px; background: var(--ink);
+}
+.brand-mark i { display: block; height: 14px; background: var(--surface); transform: skewX(-18deg); border-radius: 1px; }
+.brand-mark i:nth-child(2) { background: var(--marker); }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs a {
+  padding: 7px 12px; border-radius: 8px; text-decoration: none;
+  color: var(--muted); font-weight: 500; font-size: var(--s-sm); white-space: nowrap;
+}
+.tabs a:hover { color: var(--ink); background: var(--surface-2); }
+.tabs a[aria-current="page"] { color: var(--ink); background: var(--surface-2); box-shadow: inset 0 -2px 0 var(--accent); }
+#newPromptBtn { margin-left: auto; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font-size: var(--s-sm); font-weight: 600; line-height: 1.2; white-space: nowrap;
+  transition: background .15s, border-color .15s, transform .1s;
+}
+.btn:hover { border-color: var(--muted); }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { border-color: var(--accent); filter: brightness(1.08); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { background: var(--surface-2); color: var(--ink); border-color: transparent; }
+.btn-danger { background: transparent; border-color: transparent; color: var(--danger); }
+.btn-danger:hover { background: var(--surface-2); border-color: transparent; }
+.btn-danger.confirm { background: var(--danger); color: var(--surface); }
+.iconbtn {
+  display: inline-grid; place-items: center; width: 34px; height: 34px; flex: none;
+  border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer;
+}
+.iconbtn:hover { background: var(--surface-2); color: var(--ink); }
+.iconbtn[aria-pressed="true"] { color: var(--marker); }
+.iconbtn[aria-pressed="true"] svg { fill: var(--marker); stroke: var(--marker); }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- Views ---------- */
+.view {
+  max-width: 1360px; margin: 0 auto;
+  padding-block: 28px 40px;
+  padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+}
+.intro { display: flex; gap: 32px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; margin-bottom: 26px; }
+.intro-text { max-width: 62ch; display: grid; gap: 10px; }
+.intro h1, .page-head h1 { font-size: var(--s-2xl); font-weight: 800; }
+.intro p, .page-head p { color: var(--muted); font-size: 1.04rem; }
+.page-head { display: grid; gap: 10px; max-width: 70ch; margin-bottom: 26px; }
+.stats { display: flex; gap: 28px; margin: 0; }
+.stats div { display: grid; }
+.stats dt { font-size: var(--s-xs); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; order: 2; }
+.stats dd { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+
+/* ---------- Library ---------- */
+.library { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 28px; align-items: start; }
+.sidebar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); display: grid; gap: 6px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 4px; }
+.side-label { font-size: var(--s-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 12px 10px 2px; }
+.side-group { display: grid; gap: 1px; }
+.side-btn {
+  display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 8px;
+  width: 100%; text-align: left; cursor: pointer;
+  padding: 6px 10px; border-radius: 8px; border: 0; background: transparent;
+  font-size: var(--s-sm); color: var(--ink);
+}
+.side-btn:hover { background: var(--surface-2); }
+.side-btn[aria-pressed="true"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); font-weight: 600; }
+.side-btn .n { color: var(--muted); font-variant-numeric: tabular-nums; font-size: var(--s-xs); }
+.code {
+  font-family: var(--f-mono); font-size: .68rem; font-weight: 500; letter-spacing: .04em;
+  display: inline-block; text-align: center; padding: 2px 5px; border-radius: 4px;
+  background: var(--ink); color: var(--surface); line-height: 1.4;
+}
+.side-btn .code { background: var(--surface-2); color: var(--muted); }
+.side-btn[aria-pressed="true"] .code { background: var(--ink); color: var(--surface); }
+.side-btn .glyph { display: inline-grid; place-items: center; width: 38px; color: var(--muted); }
+
+.toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search {
+  flex: 1 1 280px; display: flex; align-items: center; gap: 8px; min-width: 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 0 10px;
+}
+.search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.search svg { color: var(--muted); }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 10px 0; outline: none; }
+.sort { display: flex; align-items: center; gap: 8px; font-size: var(--s-sm); color: var(--muted); }
+.sort select, .field select {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--ink);
+}
+.chiprow { display: none; gap: 6px; overflow-x: auto; padding: 12px 0 2px; scrollbar-width: thin; }
+.chip {
+  flex: none; display: inline-flex; gap: 6px; align-items: center;
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 5px 11px; font-size: var(--s-xs); cursor: pointer; white-space: nowrap;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.result-meta { color: var(--muted); font-size: var(--s-sm); margin: 14px 0 12px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; }
+.card {
+  position: relative; display: flex; flex-direction: column; gap: 10px;
+  padding: 16px 16px 12px; border-radius: var(--r);
+  background: var(--surface); border: 1px solid var(--line);
+  cursor: pointer; text-align: left; min-width: 0;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.card:hover { border-color: var(--muted); transform: translateY(-2px); box-shadow: var(--shadow); }
+.card:focus-within { border-color: var(--accent); }
+.card-top { display: flex; align-items: center; gap: 8px; font-size: var(--s-xs); color: var(--muted); }
+.card-top .mine { margin-left: auto; color: var(--good); font-weight: 600; }
+.card h3 { font-size: 1.08rem; font-weight: 700; }
+.card h3 button { all: unset; cursor: pointer; }
+.card h3 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.card h3 button::after { content: ""; position: absolute; inset: 0; border-radius: var(--r); }
+.card .desc { color: var(--muted); font-size: var(--s-sm); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { font-size: .72rem; color: var(--muted); background: var(--surface-2); border-radius: 4px; padding: 1px 6px; }
+.card-foot { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--line); font-size: var(--s-xs); color: var(--muted); }
+.card-foot .blanks { font-family: var(--f-mono); }
+.card-foot .spacer { flex: 1; }
+.card-foot .iconbtn, .card-foot .btn { position: relative; z-index: 1; }
+.card-foot .btn { padding: 5px 10px; font-size: var(--s-xs); }
+
+.empty { padding: 48px 20px; text-align: center; display: grid; gap: 10px; justify-items: center; border: 1px dashed var(--line); border-radius: var(--r); }
+.empty p { color: var(--muted); }
+
+/* ---------- Prompt output ---------- */
+.prompt-out {
+  margin: 0; padding: 16px; border-radius: var(--r);
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-family: var(--f-mono); font-size: .84rem; line-height: 1.65;
+  white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
+  max-height: 60vh; overflow: auto;
+}
+.prompt-out .v { background: var(--marker-soft); color: var(--ink); border-radius: 3px; padding: 0 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.prompt-out .v.edited { background: var(--marker); color: var(--marker-ink); }
+.prompt-out .v.empty-v { background: transparent; color: var(--blank); outline: 1px dashed var(--blank); outline-offset: -1px; }
+.prompt-out .v.hot { outline: 2px solid var(--accent); }
+.out-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.out-head h2, .out-head h3 { font-size: var(--s-md); font-weight: 700; }
+.count { font-size: var(--s-xs); color: var(--muted); font-variant-numeric: tabular-nums; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: var(--s-xs); color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.legend .l-ex::before { background: var(--marker-soft); box-shadow: inset 0 0 0 1px var(--line); }
+.legend .l-ed::before { background: var(--marker); }
+.hint { font-size: var(--s-xs); color: var(--muted); margin-top: 10px; }
+.form-error { font-size: var(--s-sm); color: var(--danger); margin-top: 8px; }
+
+/* ---------- Forms ---------- */
+.field { display: grid; gap: 5px; font-size: var(--s-sm); min-width: 0; }
+.field > span { font-weight: 600; display: flex; gap: 6px; align-items: baseline; }
+.field small { font-weight: 400; color: var(--muted); }
+.field input, .field textarea, #ioText {
+  width: 100%; min-width: 0; padding: 9px 11px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; color: var(--ink);
+}
+.field textarea, #ioText { font-family: var(--f-mono); font-size: .82rem; line-height: 1.55; resize: vertical; }
+.field input:focus, .field textarea:focus, .field select:focus, #ioText:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ---------- Drawer ---------- */
+.scrim { position: fixed; inset: 0; z-index: 40; background: rgba(8, 10, 16, .45); backdrop-filter: blur(2px); }
+.drawer {
+  position: fixed; z-index: 41; top: 0; right: 0; bottom: 0;
+  width: min(1040px, 100%);
+  display: flex; flex-direction: column;
+  background: var(--bg); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  animation: slide .22s ease-out;
+}
+@keyframes slide { from { transform: translateX(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+.drawer-head, .drawer-foot { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: var(--surface); }
+.drawer-head { border-bottom: 1px solid var(--line); }
+.drawer-foot { border-top: 1px solid var(--line); flex-wrap: wrap; }
+.drawer-foot .spacer { flex: 1; }
+.d-meta { display: flex; align-items: center; gap: 8px; font-size: var(--s-sm); color: var(--muted); flex: 1; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 22px 20px 28px; display: grid; gap: 12px; align-content: start; }
+.drawer-body h2 { font-size: var(--s-xl); font-weight: 800; }
+.d-desc { color: var(--muted); max-width: 70ch; }
+.d-tools { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: var(--s-xs); color: var(--muted); }
+.d-tools .tool { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 2px 9px; color: var(--ink); }
+.d-cols { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px; margin-top: 8px; align-items: start; }
+.d-form { display: grid; gap: 12px; }
+.d-form .none { color: var(--muted); font-size: var(--s-sm); padding: 12px; border: 1px dashed var(--line); border-radius: 8px; }
+.d-preview { position: sticky; top: 0; min-width: 0; }
+
+/* ---------- Modal ---------- */
+.modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(8, 10, 16, .5); }
+.modal-card {
+  width: min(720px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
+}
+.modal-head, .modal-foot { display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: var(--surface); }
+.modal-head { border-bottom: 1px solid var(--line); justify-content: space-between; }
+.modal-head h2 { font-size: var(--s-lg); }
+.modal-foot { border-top: 1px solid var(--line); justify-content: flex-end; flex-wrap: wrap; }
+.modal-body { padding: 18px; display: grid; gap: 14px; overflow-y: auto; }
+.file { display: grid; gap: 6px; font-size: var(--s-sm); color: var(--muted); }
+
+/* ---------- Builder ---------- */
+.builder { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 28px; align-items: start; }
+.builder-form { display: grid; gap: 16px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--surface-2); width: fit-content; }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; inset: 0; }
+.seg span { display: block; padding: 7px 16px; border-radius: 8px; font-size: var(--s-sm); font-weight: 600; color: var(--muted); cursor: pointer; }
+.seg input:checked + span { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fields .wide { grid-column: 1 / -1; }
+.builder-out { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); min-width: 0; }
+
+/* ---------- Vocabulary ---------- */
+.formulas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; margin-bottom: 30px; }
+.formula { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.formula h3 { font-size: 1.05rem; }
+.formula ol { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px; font-family: var(--f-mono); font-size: .76rem; }
+.formula ol li { background: var(--surface-2); padding: 2px 7px; border-radius: 4px; }
+.formula ol li + li::before { content: "→ "; color: var(--muted); }
+.formula p { font-size: var(--s-sm); color: var(--muted); }
+.formula .src { font-size: var(--s-xs); }
+.vocab-tools { margin-bottom: 16px; max-width: 420px; display: flex; }
+.vocab { columns: 3 300px; column-gap: 18px; }
+.vgroup { break-inside: avoid; margin-bottom: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; }
+.vgroup h3 { font-size: 1rem; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 8px; }
+.vgroup h3 span { font-family: var(--f-body); font-weight: 400; font-size: var(--s-xs); color: var(--muted); }
+.term {
+  display: grid; gap: 1px; width: 100%; text-align: left; cursor: copy;
+  padding: 6px 8px; border: 0; border-radius: 6px; background: transparent;
+}
+.term:hover { background: var(--surface-2); }
+.term b { font-weight: 600; font-size: var(--s-sm); }
+.term small { color: var(--muted); font-size: var(--s-xs); line-height: 1.4; }
+
+/* ---------- Roadmap ---------- */
+.roadmap { display: grid; gap: 28px; }
+.rm-stage h2 { font-size: var(--s-lg); margin-bottom: 4px; }
+.rm-stage > p { color: var(--muted); font-size: var(--s-sm); margin-bottom: 12px; }
+.rm-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.rm-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.rm-item h3 { font-size: 1rem; font-family: var(--f-body); font-weight: 600; letter-spacing: 0; }
+.rm-item p { font-size: var(--s-sm); color: var(--muted); }
+.pill { justify-self: start; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.done { color: var(--good); }
+.pill.next { color: var(--accent); }
+.pill.later { color: var(--muted); }
+
+/* ---------- Footer & toast ---------- */
+.foot {
+  max-width: 1360px; margin: 0 auto; padding-block: 20px 36px;
+  padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+  color: var(--muted); font-size: var(--s-sm); border-top: 1px solid var(--line);
+}
+.toast {
+  position: fixed; z-index: 60; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  background: var(--ink); color: var(--surface); padding: 10px 16px; border-radius: 10px;
+  font-size: var(--s-sm); font-weight: 500; box-shadow: var(--shadow); max-width: calc(100% - 32px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .library { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { display: none; }
+  .chiprow { display: flex; }
+  .d-cols { grid-template-columns: minmax(0, 1fr); }
+  .d-preview { position: static; order: -1; }
+  .builder { grid-template-columns: minmax(0, 1fr); }
+  .builder-out { position: static; }
+}
+@media (max-width: 640px) {
+  .topbar-inner { gap: 10px; flex-wrap: wrap; }
+  .tabs { order: 3; width: 100%; }
+  .brand-name { font-size: 1.05rem; }
+  #newPromptBtn span { display: none; }
+  #newPromptBtn { padding: 8px 10px; }
+  .stats { gap: 20px; }
+  .stats dd { font-size: 1.5rem; }
+  .fields, .row2 { grid-template-columns: minmax(0, 1fr); }
+  .drawer-head, .drawer-foot { padding-left: 14px; padding-right: 14px; }
+  .drawer-body { padding: 18px 14px 24px; }
+  .drawer-foot .btn-ghost { padding-inline: 8px; }
+  .prompt-out { max-height: 40vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#library" aria-label="Creative Prompt Vault home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-name">Prompt Vault</span>
+      </a>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#library" data-tab="library">Library</a>
+        <a href="#builder" data-tab="builder">Builder</a>
+        <a href="#vocab" data-tab="vocab">Vocabulary</a>
+        <a href="#roadmap" data-tab="roadmap">Roadmap</a>
+      </nav>
+      <button class="btn btn-primary" id="newPromptBtn" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M2 8h12"/></svg><span>New prompt</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- LIBRARY -->
+  <main id="view-library" class="view" data-view="library">
+    <section class="intro">
+      <div class="intro-text">
+        <h1>Prompts for every stage of a creative production</h1>
+        <p>Pick a template, fill in the blanks, copy. Each prompt is written for a skill or tool you already use: video and image models, Blender previz, ads, characters, design review, research and client docs.</p>
+      </div>
+      <dl class="stats" id="stats"></dl>
+    </section>
+
+    <div class="library">
+      <aside class="sidebar" aria-label="Filter by skill">
+        <div class="side-group" id="sideViews"></div>
+        <p class="side-label">Skills</p>
+        <div class="side-group" id="sideCats"></div>
+      </aside>
+
+      <section class="results" aria-live="polite">
+        <div class="toolbar">
+          <label class="search" for="search">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>
+            <input id="search" type="search" placeholder="Search prompts, tags, tools…" autocomplete="off">
+            <kbd>/</kbd>
+          </label>
+          <label class="sort" for="sort"><span>Sort</span>
+            <select id="sort">
+              <option value="featured">Featured</option>
+              <option value="az">A–Z</option>
+              <option value="used">Most copied</option>
+              <option value="vars">Fewest blanks</option>
+            </select>
+          </label>
+        </div>
+        <div class="chiprow" id="catChips" aria-label="Skills"></div>
+        <p class="result-meta" id="resultMeta"></p>
+        <div class="grid" id="grid"></div>
+        <div class="empty" id="empty" hidden>
+          <h3>No prompts match</h3>
+          <p>Try a shorter search, pick another skill, or write your own template.</p>
+          <button class="btn" type="button" id="emptyNew">Write a prompt</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- BUILDER -->
+  <main id="view-builder" class="view" data-view="builder" hidden>
+    <section class="page-head">
+      <h1>Prompt builder</h1>
+      <p>Assemble an image or video prompt one field at a time. Every field suggests standard terms from the vocabulary; type your own to override.</p>
+    </section>
+    <div class="builder">
+      <form class="builder-form" id="builderForm" autocomplete="off">
+        <div class="seg" role="radiogroup" aria-label="Prompt type">
+          <label><input type="radio" name="bmode" value="video" id="bmode-video" checked><span>Video shot</span></label>
+          <label><input type="radio" name="bmode" value="image" id="bmode-image"><span>Image</span></label>
+        </div>
+        <div id="builderFields" class="fields"></div>
+      </form>
+      <div class="builder-out">
+        <div class="out-head">
+          <h2>Your prompt</h2>
+          <span class="count" id="builderCount"></span>
+        </div>
+        <pre class="prompt-out" id="builderOut"></pre>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="builderCopy">Copy prompt</button>
+          <button class="btn" type="button" id="builderSave">Save as template</button>
+          <button class="btn btn-ghost" type="button" id="builderReset">Clear</button>
+        </div>
+        <p class="hint">Starts with a worked example; overwrite any field. Fields you leave empty are dropped. "Save as template" turns each field into a fill-in blank so you can reuse the structure.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- VOCAB -->
+  <main id="view-vocab" class="view" data-view="vocab" hidden>
+    <section class="page-head">
+      <h1>Vocabulary &amp; formulas</h1>
+      <p>The words models understand best. Click any term to copy it.</p>
+    </section>
+    <div id="formulas" class="formulas"></div>
+    <div class="vocab-tools">
+      <label class="search" for="vocabSearch">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>
+        <input id="vocabSearch" type="search" placeholder="Filter terms…" autocomplete="off">
+      </label>
+    </div>
+    <div id="vocab" class="vocab"></div>
+  </main>
+
+  <!-- ROADMAP -->
+  <main id="view-roadmap" class="view" data-view="roadmap" hidden>
+    <section class="page-head">
+      <h1>Roadmap</h1>
+      <p>What this library can grow into, based on how creative teams use prompt libraries and where AI video and image tools are heading.</p>
+    </section>
+    <div id="roadmap" class="roadmap"></div>
+  </main>
+
+  <footer class="foot">
+    <p>Your favorites, copy counts and own prompts are saved in this browser. Use <button type="button" class="linkbtn" id="exportBtn">Export</button> / <button type="button" class="linkbtn" id="importBtn">Import</button> to back them up or move them.</p>
+  </footer>
+</div>
+
+<!-- Prompt drawer -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
+  <div class="drawer-head">
+    <div class="d-meta"><span class="code" id="dCode"></span><span id="dCat"></span></div>
+    <button class="iconbtn" type="button" id="dClose" aria-label="Close">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body">
+    <h2 id="dTitle"></h2>
+    <p class="d-desc" id="dDesc"></p>
+    <div class="d-tools" id="dTools"></div>
+    <div class="d-cols">
+      <form class="d-form" id="dForm" autocomplete="off"></form>
+      <div class="d-preview">
+        <div class="out-head"><h3>Preview</h3><span class="count" id="dCount"></span></div>
+        <pre class="prompt-out" id="dOut"></pre>
+        <p class="legend"><span class="l-ex">Example value</span><span class="l-ed">Your text</span><span>Tip: Ctrl/⌘ + Enter copies</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn btn-primary" type="button" id="dCopy">Copy prompt</button>
+    <button class="btn" type="button" id="dCopyRaw">Copy template</button>
+    <button class="btn btn-ghost" type="button" id="dReset">Reset blanks</button>
+    <span class="spacer"></span>
+    <button class="iconbtn" type="button" id="dFav" aria-label="Add to favorites" aria-pressed="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/></svg>
+    </button>
+    <button class="btn btn-ghost" type="button" id="dDuplicate">Duplicate &amp; edit</button>
+    <button class="btn btn-ghost" type="button" id="dEdit" hidden>Edit</button>
+    <button class="btn btn-danger" type="button" id="dDelete" hidden>Delete</button>
+  </div>
+</aside>
+
+<!-- Editor -->
+<div class="modal" id="editor" role="dialog" aria-modal="true" aria-labelledby="eTitle" hidden>
+  <form class="modal-card" id="editorForm" autocomplete="off">
+    <div class="modal-head">
+      <h2 id="eTitle">New prompt</h2>
+      <button class="iconbtn" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label class="field" for="eName"><span>Title</span><input id="eName" required maxlength="90" placeholder="e.g. Product orbit shot for skincare"></label>
+      <div class="row2">
+        <label class="field" for="eCat"><span>Skill</span><select id="eCat"></select></label>
+        <label class="field" for="eTags"><span>Tags <small>comma separated</small></span><input id="eTags" placeholder="product, 9:16, kling"></label>
+      </div>
+      <label class="field" for="eDesc"><span>What it's for</span><input id="eDesc" maxlength="200" placeholder="One line on when to use it"></label>
+      <label class="field" for="eBody"><span>Prompt <small>write blanks as {{Name|default value}}</small></span>
+        <textarea id="eBody" rows="12" required spellcheck="false" placeholder="{{Subject|A ceramic mug}} on {{Surface|a walnut table}}, {{Lighting|soft morning light}}…"></textarea>
+      </label>
+      <p class="hint" id="eVars"></p>
+      <p class="form-error" id="eError" hidden></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+      <button class="btn btn-primary" type="submit">Save prompt</button>
+    </div>
+  </form>
+</div>
+
+<!-- Import / export -->
+<div class="modal" id="io" role="dialog" aria-modal="true" aria-labelledby="ioTitle" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="ioTitle">Export</h2>
+      <button class="iconbtn" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" id="ioHint"></p>
+      <textarea id="ioText" rows="12" spellcheck="false"></textarea>
+      <label class="file" id="ioFileWrap" for="ioFile" hidden><span>Or choose a .json file</span><input type="file" id="ioFile" accept="application/json,.json"></label>
+      <p class="form-error" id="ioError" hidden></p>
+    </div>
+    <div class="modal-foot" id="ioFoot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* Creative Prompt Vault — library data.
+   Blanks are written as {{Name|default}}. The same Name used twice shares one value. */
+var VAULT = window.VAULT = {};
+
+VAULT.categories = [
+  { id: "video",     code: "VID", name: "AI Video",              skill: "Seedance, Kling, Higgsfield, Magnific video" },
+  { id: "image",     code: "IMG", name: "AI Image",              skill: "Image models, edits, upscaling" },
+  { id: "previz",    code: "PRV", name: "Blender Previz",        skill: "blender-ai, blender-scene-building" },
+  { id: "ads",       code: "ADS", name: "Ads & UGC",             skill: "Ads Studio, Marketing Studio" },
+  { id: "character", code: "CHR", name: "Characters",            skill: "AI influencer, character sheets" },
+  { id: "social",    code: "SOC", name: "Social & Shorts",       skill: "TikTok, Reels, Shorts, virality" },
+  { id: "audio",     code: "AUD", name: "Voice, Music & SFX",    skill: "TTS, music, sound effects" },
+  { id: "brand",     code: "BRD", name: "Brand & Design System", skill: "design-system, brand kits" },
+  { id: "design",    code: "DSN", name: "Design Review",         skill: "design-critique, accessibility-review, ux-copy, design-handoff" },
+  { id: "research",  code: "RSC", name: "Research",              skill: "deep-research, user-research, research-synthesis" },
+  { id: "docs",      code: "DOC", name: "Docs, Decks & Sheets",  skill: "docs, pptx, xlsx, pdf, dataviz" },
+  { id: "build",     code: "DEV", name: "Build with Claude Code", skill: "websites, skill-creator, automation, RunPod" },
+  { id: "custom",    code: "OWN", name: "My prompts",            skill: "Written by you" }
+];
+
+VAULT.prompts = [
+/* ---------------- AI VIDEO ---------------- */
+{ id: "vid-01", cat: "video", title: "Cinematic single shot",
+  desc: "One continuous shot built on the subject, action, setting, camera, mood formula. The camera move is tied to an event in the scene.",
+  tags: ["text-to-video", "formula", "cinematic"], tools: ["Seedance", "Kling", "Higgsfield"],
+  body: `{{Subject|A weathered fisherman in a yellow raincoat}} {{Action|hauls a net onto the deck as a wave breaks behind him}}.
+Setting: {{Setting|small wooden boat, North Sea, overcast dawn}}.
+Camera: {{Shot size|medium shot}}, {{Camera move|slow push-in}}, {{Angle|eye level}}. The camera starts moving when {{Camera trigger|the wave hits the hull}}.
+Lighting & mood: {{Lighting|cold diffused daylight, backlit sea spray}}, {{Mood|tense and determined}}.
+Style: {{Style|35mm film, muted teal-and-amber grade, fine grain, shallow depth of field}}.
+Audio: {{Audio|wind, creaking rope, distant gulls, no music}}.
+Constraints: one continuous {{Duration|5}}-second shot, no cuts, no on-screen text, stable anatomy, costume stays the same.` },
+
+{ id: "vid-02", cat: "video", title: "Timeline multi-shot sequence",
+  desc: "Timestamped shots inside one generation. Locks the character description so it stays the same across cuts.",
+  tags: ["multi-shot", "timeline", "storyboard"], tools: ["Seedance 2.x", "Kling 3.0"],
+  body: `{{Duration|10}}-second sequence, {{Aspect ratio|16:9}}.
+Character (identical in every shot): {{Character lock|Maya, 28, short black bob, olive bomber jacket, silver hoop earrings}}.
+
+[0–3s] Shot 1: {{Shot 1|Wide establishing. Neon-lit Tokyo alley in the rain, Maya walks toward camera, slow dolly back}}.
+[3–6s] Shot 2: {{Shot 2|Medium close-up. Maya stops and looks up at a flickering sign, camera arcs 30° to her left}}.
+[6–10s] Shot 3: {{Shot 3|Insert. Her hand pulls a glowing keycard from her pocket, rack focus from the card to the sign}}.
+
+Global style: {{Style|anamorphic, cyan and magenta neon, wet reflections, light grain, shallow depth of field}}.
+Audio: {{Audio|rain on metal, distant train, low synth drone building}}.
+Rules: hard cuts between shots, no on-screen text, no face morphing, outfit never changes.` },
+
+{ id: "vid-03", cat: "video", title: "Animate a still image",
+  desc: "Image-to-video that keeps the reference frame intact and only adds the motion you describe.",
+  tags: ["image-to-video", "subtle motion"], tools: ["Kling", "Seedance", "Higgsfield"],
+  body: `Animate the attached image. Keep the composition, subject identity, colors and lighting exactly as in the reference.
+Subject motion: {{Subject motion|her hair and scarf move gently in the wind, she blinks and turns her head slightly toward camera}}.
+Environment motion: {{Environment motion|clouds drift left, grass sways}}.
+Camera: {{Camera move|very slow push-in}}, motion intensity {{Intensity|subtle}}.
+Duration: {{Duration|5}} seconds.
+Do not add new objects, people or text. No warping of hands or face.` },
+
+{ id: "vid-04", cat: "video", title: "Start frame to end frame transition",
+  desc: "Keyframe prompt: describe the path between two images so the model doesn't invent a cut.",
+  tags: ["keyframes", "transition", "first-last frame"], tools: ["Kling 3.0", "Seedance"],
+  body: `Start frame: image 1. End frame: image 2.
+Create one continuous {{Duration|5}}-second shot that travels from the start frame to the end frame.
+Transition: {{Transition|the camera flies through the open window of the house and settles in the sunlit kitchen}}.
+Camera path: {{Camera path|forward dolly that accelerates, then eases out}}.
+Keep {{Consistent elements|the color palette, time of day and the cat on the windowsill}} consistent.
+No cuts, no fades, no face morphing.` },
+
+{ id: "vid-05", cat: "video", title: "Product hero shot",
+  desc: "Premium commercial move around a product with controlled light and no distorted logos.",
+  tags: ["product", "commercial", "macro"], tools: ["Kling", "Seedance", "Higgsfield"],
+  body: `Premium product commercial shot of {{Product|a matte black wireless earbud case}} on {{Surface|a slab of wet black marble}}.
+Action: {{Action|the lid snaps open and the earbuds rise slightly with a soft glow}}.
+Camera: {{Camera move|macro orbit 90° around the product, ending on a three-quarter hero angle}}.
+Lighting: {{Lighting|dark studio, single rim light, soft gradient backdrop, crisp specular highlights}}.
+Style: {{Style|high-end tech ad, ultra sharp, slow-motion feel}}.
+{{Duration|6}} seconds, {{Aspect ratio|9:16}}.
+Logo and text must not distort. No extra products, no hands.` },
+
+{ id: "vid-06", cat: "video", title: "Reverse-engineer a reference video",
+  desc: "Turn a video you like into a shot-by-shot breakdown and a reusable prompt with a new subject.",
+  tags: ["analysis", "reference", "breakdown"], tools: ["Claude", "video_analysis"],
+  body: `I'll give you a reference video (or a description of it). Break it down shot by shot into a reusable prompt skeleton.
+
+For each shot list: timestamp, shot size, angle, camera move and what triggers it, subject action, lighting, color grade, lens feel, transition, audio.
+
+Then write:
+1. One generation prompt for {{Target model|Seedance 2.0}} that recreates the style with a new subject: {{New subject|a barista making latte art}}.
+2. A timestamped multi-shot version of the same prompt.
+3. What the model will likely get wrong, and the prompt wording that prevents it.
+
+Reference: {{Reference|paste a link or describe the video}}` },
+
+{ id: "vid-07", cat: "video", title: "Fix a broken generation",
+  desc: "Diagnose artifacts like face morphing or jitter and rewrite the prompt with tighter constraints.",
+  tags: ["troubleshooting", "negative prompt", "iteration"], tools: ["Claude"],
+  body: `My generated video has these problems: {{Problems|face morphs between frames, hands melt, camera jitters, logo warps}}.
+Model: {{Model|Kling 3.0}}.
+Original prompt:
+{{Original prompt|paste the prompt here}}
+
+Rewrite the prompt to fix these problems while keeping the creative intent. Explain each change in one line.
+Add a short constraints line suited to this model.
+Then give two alternatives: a safer version with less motion, and a version that keeps the ambition but splits the action into two shots.` },
+
+{ id: "vid-08", cat: "video", title: "Dialogue scene with native audio",
+  desc: "Two characters talking, with lip-sync, delivery notes and ambience for models that generate sound.",
+  tags: ["dialogue", "lip-sync", "audio"], tools: ["Kling 3.0", "Seedance 2.x"],
+  body: `{{Duration|8}}-second dialogue scene, {{Aspect ratio|16:9}}.
+Characters: A = {{Character A|Leo, 40s, grey beard, denim shirt}}; B = {{Character B|Ana, 30s, red curly hair, white apron}}.
+Setting: {{Setting|a small bakery at closing time, warm practical lights}}.
+
+[0–4s] Over-the-shoulder on B. A says: "{{Line A|You kept the last loaf for me?}}" ({{Delivery A|surprised, soft}})
+[4–8s] Close-up on A. B says: "{{Line B|Same as every Friday.}}" ({{Delivery B|smiling, teasing}})
+
+Ambience: {{Ambience|quiet street outside, oven fan hum}}. No music.
+Lips match the words. Faces and outfits stay the same in both shots.` },
+
+/* ---------------- AI IMAGE ---------------- */
+{ id: "img-01", cat: "image", title: "Photoreal image",
+  desc: "Six-part formula: subject, setting, composition, lighting, camera, color and style.",
+  tags: ["photoreal", "formula", "portrait"], tools: ["Higgsfield", "Magnific"],
+  body: `{{Subject|Portrait of a 70-year-old tailor holding brass scissors}}, {{Detail|deep smile lines, measuring tape around his neck}}.
+Setting: {{Setting|cluttered workshop with bolts of indigo fabric}}.
+Composition: {{Composition|close-up, rule of thirds, subject on the left, eyes in sharp focus}}.
+Lighting: {{Lighting|warm window light from camera left, soft shadows, dust in the air}}.
+Camera: {{Camera|85mm f/1.4, shallow depth of field}}.
+Color & mood: {{Color|warm ochre and indigo palette, calm and dignified}}.
+Style: {{Style|editorial documentary photography, natural skin texture}}.
+Aspect ratio {{Aspect ratio|4:5}}. Avoid: {{Avoid|plastic skin, extra fingers, text, watermark}}.` },
+
+{ id: "img-02", cat: "image", title: "E-commerce packshot set",
+  desc: "Clean product photos in four standard variations with the label kept intact.",
+  tags: ["product", "packshot", "e-commerce"], tools: ["Higgsfield", "Magnific"],
+  body: `Studio packshot of {{Product|an amber glass serum bottle with a gold dropper}}.
+Background: {{Background|seamless soft beige}} with {{Props|a few rosemary sprigs and water droplets}}.
+Lighting: {{Lighting|large softbox from above left, subtle reflection on the surface, clean shadow}}.
+Angle: {{Angle|straight on, slightly above eye level}}, product centered and filling 60% of the frame.
+Style: commercial catalogue photo, true-to-life color, razor-sharp label.
+Make {{Count|4}} versions: plain white background, lifestyle bathroom, top-down flat lay, dark dramatic mood.
+Keep the label text unchanged. Aspect ratio {{Aspect ratio|1:1}}.` },
+
+{ id: "img-03", cat: "image", title: "Cinematic film still",
+  desc: "A frame that works on its own and as the start frame of a video.",
+  tags: ["film still", "keyframe", "cinematic"], tools: ["Higgsfield", "Magnific"],
+  body: `Cinematic film still, {{Genre|neo-noir thriller}}. {{Scene|A woman in a red coat stands alone on a subway platform as the train leaves}}.
+Shot: {{Shot|wide shot, low angle, symmetrical framing}}. Lens: {{Lens|anamorphic 40mm, horizontal flares}}.
+Lighting: {{Lighting|sodium-vapor overheads, green fluorescent spill, deep shadows}}.
+Grade: {{Grade|desaturated teal shadows, warm highlights, heavy film grain}}.
+Aspect ratio {{Aspect ratio|2.39:1}}.
+This frame will start a video, so keep the subject clear, unobstructed and in the mid-ground.` },
+
+{ id: "img-04", cat: "image", title: "Restyle with a reference",
+  desc: "Keep the layout of an image and change its style, palette and line work.",
+  tags: ["style transfer", "restyle", "reference"], tools: ["Magnific", "Higgsfield"],
+  body: `Use the attached image as the content reference. Keep the composition, poses and layout.
+Restyle it as {{Target style|a 1970s Japanese anime cel with hand-painted backgrounds}}.
+Palette: {{Palette|faded pastels on cream paper texture}}. Line work: {{Line work|clean ink outlines with varying weight}}.
+Keep recognisable: {{Keep|faces, clothing colors, the dog}}.
+Remove: {{Remove|modern logos and phone screens}}.` },
+
+{ id: "img-05", cat: "image", title: "Precise image edit",
+  desc: "Numbered edits with an explicit list of what must not change.",
+  tags: ["edit", "inpaint", "retouch"], tools: ["Higgsfield", "Magnific"],
+  body: `Edit the attached image. Change only the following:
+1. {{Edit 1|Replace the grey sky with a golden-hour sky with soft pink clouds}}
+2. {{Edit 2|Change the man's jacket from blue to forest green}}
+3. {{Edit 3|Remove the trash can on the right}}
+
+Keep everything else identical: faces, poses, framing, lighting direction, background architecture.
+Match the grain and sharpness of the original. Output the same resolution and aspect ratio.` },
+
+{ id: "img-06", cat: "image", title: "Prompt expander",
+  desc: "Turn a one-line idea into several production-ready prompts with different creative directions.",
+  tags: ["ideation", "art direction", "meta-prompt"], tools: ["Claude"],
+  body: `Act as a senior art director. Expand my rough idea into {{Count|3}} production-ready image prompts for {{Model|a photoreal image model}}.
+Idea: {{Idea|a cozy coffee shop on Mars}}
+Purpose: {{Purpose|Instagram carousel cover}}
+
+For each prompt cover subject, setting, composition, lighting, lens, color palette, mood, style and aspect ratio.
+Each version must take a clearly different creative direction.
+Finish with which one you'd pick and why, in two sentences.` },
+
+{ id: "img-07", cat: "image", title: "Upscale and enhance brief",
+  desc: "Settings and prompt hint for a faithful upscale for print or large screens.",
+  tags: ["upscale", "print", "enhance"], tools: ["Magnific", "Higgsfield"],
+  body: `Upscale this image {{Scale|4x}} for {{Use|a 60 x 90 cm print}}.
+Content: {{Content|portrait with fine hair and fabric texture}}.
+Creativity: {{Creativity|low, stay faithful to the original}}.
+Enhance: {{Enhance|skin texture, eyelashes, fabric weave}}.
+Do not change facial features, expression or colors.
+Prompt hint for the upscaler: {{Prompt hint|natural skin pores, crisp detail, photographic, no over-sharpening}}.` },
+
+{ id: "img-08", cat: "image", title: "Social graphic with exact text",
+  desc: "Typography-led image where the words must render correctly.",
+  tags: ["typography", "text rendering", "poster"], tools: ["Higgsfield", "Magnific"],
+  body: `Design a {{Format|square Instagram post}} with the exact text "{{Headline|AI ads in 48 hours}}" and smaller text "{{Subline|Book a free test shoot}}".
+Visual: {{Visual|a film clapperboard made of glowing glass on a dark gradient}}.
+Typography: {{Typography|bold condensed sans-serif, left aligned, high contrast}}.
+Colors: {{Colors|charcoal, warm white, one amber highlight}}.
+Spell every word exactly as written. Keep text away from the edges. No extra words, no logos.` },
+
+/* ---------------- BLENDER PREVIZ ---------------- */
+{ id: "prv-01", cat: "previz", title: "Previz brief for an AI video shot",
+  desc: "Starts the gated Blender_AI workflow: proxies, camera, timing, export, then the AI handoff.",
+  tags: ["blender", "previz", "blockout"], tools: ["blender-ai skill", "Blender MCP"],
+  body: `Use the Blender_AI workflow. Build a previz blockout whose only job is to lock camera, framing, placement and timing for an AI video model.
+
+Shot: {{Shot description|A runner sprints across a rooftop and leaps to the next building}}
+Duration: {{Duration|5}} s at {{FPS|24}} fps, {{Aspect ratio|16:9}}.
+Characters as grey proxies: {{Characters|one runner, 1.8 m tall}}.
+Environment blockout: {{Environment|two rooftops 4 m apart, water tanks, low walls}}.
+Camera: {{Camera|side-on tracking at 3 m, 35 mm, whip-pan to follow the jump}}.
+Timing: {{Beats|0–2 s run-up, 2–3 s jump, 3–5 s landing and roll}}.
+Target model: {{Target model|Seedance 2.0}}.
+
+Stop after each gated step (Brief, Blockout + Layout, Motion + Timing, Mood light + Export, AI handoff) and show me a viewport check before moving on.` },
+
+{ id: "prv-02", cat: "previz", title: "Camera options to compare",
+  desc: "Several cameras for the same shot, each with a marker and playblast.",
+  tags: ["camera", "blocking", "playblast"], tools: ["blender-scene-building skill"],
+  body: `In the current Blender scene, create {{Count|4}} camera options for the shot "{{Shot name|hero reveal}}", each on its own camera with a timeline marker:
+1. {{Move 1|slow dolly-in from 6 m to 2 m, 50 mm}}
+2. {{Move 2|crane up from knee height to 4 m, revealing the skyline}}
+3. {{Move 3|180° orbit around the subject at 3 m}}
+4. {{Move 4|handheld-style follow with slight rotation noise}}
+
+{{Duration|5}} s each, Material Preview look.
+Render a quick viewport playblast of each so I can compare framing side by side.` },
+
+{ id: "prv-03", cat: "previz", title: "AI handoff from a previz render",
+  desc: "Prompt that tells the video model to follow the previz camera and timing and only change the look.",
+  tags: ["handoff", "video reference", "previz"], tools: ["Seedance", "Kling", "MiniMax"],
+  body: `I have a previz reference video exported from Blender (grey proxies, simple lighting). Write the prompt for {{Target model|Seedance 2.0}} that uses it as the motion and camera reference.
+
+Final look: {{Final look|photoreal golden-hour city rooftops}}.
+Replace the proxies with: {{Characters|a young athletic woman with a ponytail, black tracksuit}}.
+
+Tell the model to follow the reference camera path, framing and timing exactly and to change only the appearance.
+Include style, lighting, audio and a constraints line.
+Also give a shorter fallback prompt in case the first one drifts.` },
+
+{ id: "prv-04", cat: "previz", title: "Procedural set from a description",
+  desc: "Build an environment step by step with viewport checks and a polycount budget.",
+  tags: ["environment", "procedural", "python"], tools: ["blender-scene-building skill"],
+  body: `Using Blender over MCP with Python, build {{Scene|a stylized low-poly forest clearing with a campfire}}.
+Requirements: {{Requirements|20–30 trees with random scale and rotation, rocks, a log seat, a campfire with emissive embers}}.
+Look: {{Look|warm night, moonlight rim, orange fire glow, light volumetric fog}}.
+Camera: {{Camera|24 mm, eye level, slow 10-second orbit}}.
+
+Work in small steps, check each step with a viewport screenshot, and keep the scene under {{Polycount|200k}} polygons so the viewport stays responsive.
+Ask me before anything destructive.` },
+
+{ id: "prv-05", cat: "previz", title: "Seamless logo loop",
+  desc: "A short motion-graphics loop where the last frame matches the first.",
+  tags: ["loop", "motion graphics", "logo"], tools: ["Blender MCP"],
+  body: `In Blender, create a seamless {{Duration|4}}-second loop at {{FPS|30}} fps: {{Animation|a glass logo cube rotates 90° and bounces slightly, ending exactly where it started}}.
+Materials: {{Materials|clear glass with slight dispersion on a soft gradient backdrop}}.
+Easing: {{Easing|ease in and out, no linear motion}}.
+Frame 1 and the last frame must match for a perfect loop.
+Export as {{Export|MP4, 1080 x 1080}}.` },
+
+/* ---------------- ADS & UGC ---------------- */
+{ id: "ads-01", cat: "ads", title: "UGC ad script",
+  desc: "Hook, problem, product, proof, CTA in a timed table, plus five hooks with different angles.",
+  tags: ["ugc", "script", "hooks"], tools: ["Claude", "Ads Studio"],
+  body: `Write a {{Length|30}}-second UGC-style video ad for {{Product|a magnetic phone tripod}}.
+Audience: {{Audience|travel creators aged 20–35}}. Platform: {{Platform|TikTok}}.
+Main benefit: {{Benefit|set up a steady shot anywhere in 3 seconds}}.
+
+Format as a table: time | spoken line | visual | on-screen text.
+Beats: 0–3 s hook, 3–8 s problem, 8–20 s product in use with proof, 20–{{Length|30}} s CTA.
+Voice: first person, natural, like a real person talking to their phone. No corporate words.
+CTA: {{CTA|tap the link for 20% off this week}}.
+
+Then give 5 alternative hooks under 12 words, each a different angle: curiosity, problem, comparison, social proof, bold claim.
+Don't make claims we can't back up.` },
+
+{ id: "ads-02", cat: "ads", title: "Ad concept batch",
+  desc: "Eight concepts across formats, each testing a different variable, ranked by expected thumb-stop.",
+  tags: ["strategy", "testing", "concepts"], tools: ["Claude"],
+  body: `Act as a performance creative strategist.
+Product: {{Product|a vegan protein bar}}. Offer: {{Offer|buy 2 boxes, get 1 free}}. Audience: {{Audience|busy gym-goers aged 25–40}}.
+
+Generate {{Count|8}} ad concepts. For each give: angle, hook (first 2 seconds), format (UGC, demo, before/after, founder story, green screen, comparison, ASMR, meme), visual description, and why it should work.
+Each concept should test a different variable.
+Rank them by expected thumb-stop rate and explain the top 3.` },
+
+{ id: "ads-03", cat: "ads", title: "Static ad or poster",
+  desc: "Layout, brand colors and an exact headline with safe margins for the placement.",
+  tags: ["static", "poster", "headline"], tools: ["Higgsfield", "Magnific"],
+  body: `Design a static ad for {{Product|a citrus sparkling water}}.
+Headline, rendered exactly: "{{Headline|Zero sugar. All zest.}}"
+Layout: {{Layout|can centered, splashing water and orange slices around it, headline at top, logo bottom right}}.
+Style: {{Style|bold, bright, high-contrast commercial photography}}.
+Brand colors: {{Brand colors|#FF8A00, #FFFFFF, #0E3B2E}}.
+Aspect ratio {{Aspect ratio|4:5}} with safe margins for {{Placement|Instagram feed}}.
+Text must be legible, correctly spelled and must not overlap the product.` },
+
+{ id: "ads-04", cat: "ads", title: "Product-in-hand UGC frame",
+  desc: "A believable phone-camera frame of a creator holding the product.",
+  tags: ["ugc", "lifestyle", "9:16"], tools: ["Higgsfield", "Marketing Studio"],
+  body: `Casual smartphone selfie-video frame: {{Creator|a woman in her late 20s with curly hair and an oversized hoodie}} holds {{Product|a pastel pink water bottle}} toward the camera in {{Location|a bright apartment kitchen}}.
+Expression: {{Expression|excited, mid-sentence}}.
+Natural window light, slight handheld blur, realistic skin, no studio look.
+The product label must match the reference image exactly. Aspect ratio 9:16.` },
+
+{ id: "ads-05", cat: "ads", title: "Read ad results and iterate",
+  desc: "Explain why the winner won and plan one-variable variations. Flags thin data.",
+  tags: ["analysis", "iteration", "performance"], tools: ["Claude"],
+  body: `Here are my ad results: {{Results|Ad A: CTR 0.8%, hook rate 22%. Ad B: CTR 1.9%, hook rate 41%. Ad C: CTR 1.1%, hook rate 35%.}}
+What each ad is: {{Creative descriptions|A is a product demo, B is problem-first UGC, C is a founder story}}.
+
+Explain why the winner won.
+Give 5 new variations of the winner that each change exactly one variable: hook, first frame, creator, CTA or length.
+Flag any numbers that are too small to trust.` },
+
+{ id: "ads-06", cat: "ads", title: "Before / after demo ad",
+  desc: "A two-state visual story with a clear transformation moment.",
+  tags: ["before-after", "demo", "video"], tools: ["Kling", "Seedance", "Ads Studio"],
+  body: `{{Duration|10}}-second before/after ad for {{Product|a robot vacuum}}, {{Aspect ratio|9:16}}.
+[0–3s] Before: {{Before|living room floor covered in pet hair and cereal, owner sighs}}.
+[3–4s] Transition: {{Transition|whip pan to the vacuum leaving its dock}}.
+[4–8s] After: {{After|same room spotless, dog sleeping on a clean rug, soft morning light}}.
+[8–10s] End card: product centered, text "{{End card text|Clean floors. Zero effort.}}".
+Same room, same camera position for before and after. Text spelled exactly.` },
+
+/* ---------------- CHARACTERS ---------------- */
+{ id: "chr-01", cat: "character", title: "Character bible",
+  desc: "A locked description you paste into every prompt, plus outfits, expressions and drift rules.",
+  tags: ["consistency", "character", "bible"], tools: ["Claude", "AI Influencer"],
+  body: `Create a character bible for {{Name|Kai}} so they stay consistent across images and video.
+Base idea: {{Idea|a 24-year-old street-food chef from Bangkok, energetic and funny}}.
+
+Give me:
+1. One locked description paragraph (face shape, eyes, hair, skin, build, signature outfit, accessories) that I will paste unchanged into every prompt.
+2. Personality and voice notes.
+3. Three alternate outfits.
+4. An expressions list for a sheet.
+5. Things that must never change.
+6. Common drift problems and the wording that prevents each one.` },
+
+{ id: "chr-02", cat: "character", title: "Character turnaround sheet",
+  desc: "Front, three-quarter, side and back views plus expression close-ups on a neutral background.",
+  tags: ["turnaround", "reference sheet"], tools: ["Higgsfield", "Magnific"],
+  body: `Character reference sheet of {{Character|Kai, 24, short dyed-blonde hair, black chef jacket with orange piping}}.
+Show front, three-quarter, side and back full-body views, plus 4 head close-ups with these expressions: {{Expressions|happy, surprised, focused, laughing}}.
+Neutral light grey background, even studio lighting, consistent proportions, same outfit in every view. No labels.
+Style: {{Style|photoreal}}.` },
+
+{ id: "chr-03", cat: "character", title: "AI influencer content plan",
+  desc: "Two weeks of posts with captions, hooks and prompts that reuse the locked character.",
+  tags: ["influencer", "content plan", "persona"], tools: ["AI Influencer", "Claude"],
+  body: `I run an AI influencer named {{Name|Lumi}}: {{Persona|a 26-year-old digital artist in Seoul who loves film cameras and street fashion}}.
+Niche: {{Niche|creative lifestyle}}. Platforms: {{Platforms|Instagram and TikTok}}.
+
+Create a {{Days|14}}-day content plan with: post type, concept, caption, hook, image or video prompt (using the locked character description), and posting time.
+Mix formats. Include 3 series ideas that can repeat weekly.
+Suggest a short disclosure line for AI-generated content.` },
+
+{ id: "chr-04", cat: "character", title: "Same character, new scene",
+  desc: "Place a referenced character in a new setting without changing their identity.",
+  tags: ["consistency", "scene"], tools: ["Higgsfield", "Magnific"],
+  body: `Using the attached character reference, show {{Character name|Kai}} in a new scene. Keep the face, hair, body and outfit exactly the same.
+Scene: {{Scene|cooking at a night-market stall, flames rising from a wok}}.
+Action: {{Action|tossing noodles and laughing toward camera}}.
+Camera: {{Camera|medium shot, 35 mm, eye level}}.
+Lighting: {{Lighting|warm tungsten stall lights, neon sign bokeh}}.` },
+
+/* ---------------- SOCIAL ---------------- */
+{ id: "soc-01", cat: "social", title: "Short-form video script",
+  desc: "Hook, beats with B-roll, pattern interrupts, loop ending, caption and alternative hooks.",
+  tags: ["reels", "shorts", "tiktok", "script"], tools: ["Claude", "Shorts Studio"],
+  body: `Write a {{Length|45}}-second short-form video about {{Topic|3 AI tools that save me 10 hours a week}} for {{Platform|Instagram Reels}}.
+Audience: {{Audience|freelance designers}}. Tone: {{Tone|fast, practical, a little funny}}.
+
+Give me: the hook (first 2 seconds, spoken and on-screen text), a beat-by-beat script with B-roll ideas, a pattern interrupt about every 5 seconds, an ending that loops back to the start, a caption with 3–5 niche hashtags, and 3 alternative hooks.` },
+
+{ id: "soc-02", cat: "social", title: "Repurpose one video into many posts",
+  desc: "Clips, a carousel, a thread, a LinkedIn post and a newsletter intro from one transcript.",
+  tags: ["repurpose", "transcript", "multi-platform"], tools: ["Claude"],
+  body: `Here is the transcript of my long video:
+{{Transcript|paste transcript}}
+
+Turn it into: {{Count|5}} short clips (start and end timestamps, hook, caption), 1 carousel (text per slide), 1 X thread, 1 LinkedIn post and 1 newsletter intro.
+Keep my voice: {{Voice|direct, friendly, no buzzwords}}.` },
+
+{ id: "soc-03", cat: "social", title: "Carousel post",
+  desc: "One idea per slide with visual direction and a closing CTA.",
+  tags: ["carousel", "instagram", "linkedin"], tools: ["Claude"],
+  body: `Create a {{Slides|8}}-slide carousel about {{Topic|how to write better AI video prompts}}.
+Slide 1: a scroll-stopping title. Middle slides: one idea each, max 25 words. Last slide: CTA to {{CTA|save this and follow for more}}.
+For each slide add a short visual direction (layout, image or icon idea).
+Brand style: {{Brand style|dark background, bold white type, amber highlights}}.` },
+
+{ id: "soc-04", cat: "social", title: "Pre-post hook audit",
+  desc: "Score a video on hook, pacing and retention risk, then get the top three fixes.",
+  tags: ["virality", "retention", "audit"], tools: ["Claude", "virality predictor"],
+  body: `Audit this video before I post it.
+First 3 seconds: {{First 3 seconds|describe what's on screen and said}}
+Script: {{Script|paste script}}
+Platform: {{Platform|TikTok}}
+
+Score 1–10 for hook strength, clarity of the promise, pacing, retention risk (with timestamps), payoff, rewatch value and CTA.
+Then give the top 3 fixes ordered by impact, and rewrite the hook 3 ways.` },
+
+{ id: "soc-05", cat: "social", title: "Monthly content calendar",
+  desc: "A dated table mixing education, behind-the-scenes, portfolio and offers.",
+  tags: ["calendar", "planning"], tools: ["Claude", "xlsx"],
+  body: `Make a content calendar for {{Month|November}} for {{Brand|my AI creative studio}}.
+Goals: {{Goals|grow followers and get 5 client leads}}. Platforms: {{Platforms|Instagram, TikTok, LinkedIn}}. Capacity: {{Capacity|4 posts per week}}.
+
+Return a table: date, platform, format, topic, hook, CTA, asset needed.
+Mix education, behind-the-scenes, portfolio pieces and offers. Tie posts to relevant dates in that month.` },
+
+/* ---------------- AUDIO ---------------- */
+{ id: "aud-01", cat: "audio", title: "Voiceover script with direction",
+  desc: "Timed VO with pause and emphasis marks that TTS and voice actors both understand.",
+  tags: ["voiceover", "tts", "script"], tools: ["TTS", "Claude"],
+  body: `Write a {{Length|30}}-second voiceover for {{Project|a luxury watch launch film}}.
+Voice: {{Voice|male, deep, calm, British, intimate}}. Pace: {{Pace|slow, with pauses}}.
+Mark pauses with [pause], emphasis with *word*, and delivery notes in (parentheses).
+Keep it under {{Word count|75}} words so it fits the time.` },
+
+{ id: "aud-02", cat: "audio", title: "Music for a cut",
+  desc: "Genre, tempo, mood arc and a clean ending so it can be edited to picture.",
+  tags: ["music", "score"], tools: ["Music generation"],
+  body: `{{Length|30}} seconds of music for {{Use|a tech product reveal}}.
+Genre: {{Genre|cinematic electronic}}. Tempo: {{BPM|110}} BPM.
+Mood arc: {{Mood arc|mysterious intro, building tension, big uplifting drop at 0:18}}.
+Instruments: {{Instruments|analog synth pads, pulsing bass, light percussion, no vocals}}.
+End cleanly on the beat with no fade so it can be cut to picture.` },
+
+{ id: "aud-03", cat: "audio", title: "SFX spot list",
+  desc: "Timestamped sound list with layers and a generation prompt for each sound.",
+  tags: ["sfx", "foley", "sound design"], tools: ["SFX generation", "Claude"],
+  body: `Here is my edit: {{Shot list|0–2 s door opens; 2–4 s footsteps on gravel; 4–6 s car engine starts; 6–8 s car drives away}}.
+
+Create an SFX spot list: timestamp, sound, layers (close, room, sweetener), intensity, and a short generation prompt for each sound.
+Add one ambience bed for the whole scene.` },
+
+/* ---------------- BRAND ---------------- */
+{ id: "brd-01", cat: "brand", title: "Brand identity starter",
+  desc: "Positioning, taglines, tone, palette, type pairing and imagery rules in one pass.",
+  tags: ["branding", "positioning", "identity"], tools: ["Claude", "Brand kit"],
+  body: `Create a brand identity foundation for {{Brand|Sage Studio}}, {{What it does|an AI creative studio making ads and short films for D2C brands}}.
+Audience: {{Audience|founders and marketing leads}}. Personality: {{Personality|bold, cinematic, trustworthy}}.
+
+Deliver: positioning statement, 3 tagline options, tone of voice (do and don't), color palette with hex values and usage, a type pairing, logo direction ideas, imagery rules, and 5 example headlines.` },
+
+{ id: "brd-02", cat: "brand", title: "Design system tokens",
+  desc: "Light and dark color tokens with contrast checks, type and spacing scales, component states.",
+  tags: ["tokens", "design system", "wcag"], tools: ["design-system skill"],
+  body: `Use the design-system skill to define a design system for {{Product|my portfolio website}}.
+Brand colors: {{Brand colors|#111827, #F97316, #F5F5F4}}. Fonts: {{Fonts|Bricolage Grotesque for headings, IBM Plex Sans for body}}.
+
+Output: color tokens for light and dark with contrast ratios, type scale, spacing scale, radius, shadows, and specs for buttons, inputs, cards and tags in every state.
+Flag any color pair below WCAG AA.` },
+
+{ id: "brd-03", cat: "brand", title: "Brand suffix for every prompt",
+  desc: "A short reusable line you append to any image or video prompt to keep outputs on-brand.",
+  tags: ["consistency", "brand", "suffix"], tools: ["Claude"],
+  body: `Read my brand guidelines: {{Guidelines|paste guidelines or describe the brand}}
+
+Write a reusable brand suffix, max 60 words, that I can append to any image or video prompt so every output matches the brand: palette, lighting, mood, lens feel, textures and what to avoid.
+Then show 3 example prompts that use it.` },
+
+{ id: "brd-04", cat: "brand", title: "Moodboard brief",
+  desc: "Twelve image prompts that share one visual DNA, split across setting, casting, product and texture.",
+  tags: ["moodboard", "campaign", "art direction"], tools: ["Higgsfield", "Magnific", "Claude"],
+  body: `Build a moodboard brief for {{Project|a summer campaign for a sunscreen brand}}.
+Give 12 image prompts that form one cohesive board: 4 setting and atmosphere, 3 people and casting, 2 product, 2 textures and details, 1 typography reference.
+Shared visual DNA: {{Visual DNA|sun-bleached colors, film grain, harsh noon shadows}}.` },
+
+/* ---------------- DESIGN REVIEW ---------------- */
+{ id: "dsn-01", cat: "design", title: "Design critique",
+  desc: "Severity-ranked feedback on hierarchy, layout, type, color and the main action.",
+  tags: ["critique", "feedback", "ui"], tools: ["design-critique skill"],
+  body: `Use the design-critique skill. Review this design: {{Design|attach a screenshot or Figma link}}
+Context: {{Context|landing page for an AI video studio, goal is to book a call}}. Stage: {{Stage|near final}}.
+
+Give feedback on visual hierarchy, layout and spacing, typography, color, consistency, and how clear the main action is.
+Rank issues as critical, major or minor and give a concrete fix for each.` },
+
+{ id: "dsn-02", cat: "design", title: "Accessibility audit",
+  desc: "WCAG 2.1 AA check returned as a table with criterion, severity and fix.",
+  tags: ["a11y", "wcag", "audit"], tools: ["accessibility-review skill"],
+  body: `Use the accessibility-review skill to audit {{Target|my website's home page}} against WCAG 2.1 AA.
+Check color contrast, keyboard navigation and focus order, touch target sizes, alt text, heading structure, form labels and screen reader behavior.
+Output a table: issue, WCAG criterion, where, severity, fix.` },
+
+{ id: "dsn-03", cat: "design", title: "UX copy options",
+  desc: "Three options per interface element with a recommendation.",
+  tags: ["microcopy", "ux writing"], tools: ["ux-copy skill"],
+  body: `Use the ux-copy skill. Write UX copy for {{Screen|the checkout page of a template marketplace}}.
+Elements: {{Elements|page title, primary button, empty cart state, payment error, success message}}.
+Voice: {{Voice|friendly, clear, short}}.
+Give 3 options per element and mark the one you recommend.` },
+
+{ id: "dsn-04", cat: "design", title: "Developer handoff spec",
+  desc: "Layout, tokens, props, states, breakpoints, edge cases and animation timings.",
+  tags: ["handoff", "spec", "frontend"], tools: ["design-handoff skill"],
+  body: `Use the design-handoff skill. Create a developer handoff spec for {{Component or page|the pricing section}}.
+Include: layout and grid, design tokens used, component props, every interaction state, responsive behavior at {{Breakpoints|375, 768 and 1280}} px, edge cases (long text, empty, loading, error) and animation timings.` },
+
+{ id: "dsn-05", cat: "design", title: "Landing page plan with copy",
+  desc: "Section-by-section structure with real headlines, body copy, CTAs and visuals.",
+  tags: ["landing page", "copywriting", "conversion"], tools: ["Claude"],
+  body: `Plan a landing page for {{Offer|my AI ad production service}}.
+Audience: {{Audience|e-commerce brands doing $1M+ a year}}. Goal: {{Goal|book a discovery call}}.
+
+Give the structure section by section (hero, proof, problem, offer, process, portfolio, pricing, FAQ, final CTA) with the actual headline, subheadline, body and CTA copy for each, plus the visual that goes there.` },
+
+/* ---------------- RESEARCH ---------------- */
+{ id: "rsc-01", cat: "research", title: "Deep research report",
+  desc: "Cited comparison with a recommendation for your situation and vendor claims flagged.",
+  tags: ["research", "comparison", "citations"], tools: ["deep-research skill"],
+  body: `Use the deep-research skill. Research: {{Question|Which AI video models are best for ads right now, and how do they compare on quality, price, clip length and control?}}
+Scope: {{Scope|the last 6 months, English sources}}.
+
+Output: executive summary, comparison table, detailed findings with citations, a recommendation for {{My situation|a small studio producing 20 ads a month}}, and open questions.
+Flag anything that is vendor marketing rather than independent testing.` },
+
+{ id: "rsc-02", cat: "research", title: "Competitor analysis",
+  desc: "Offer, pricing, positioning and content for each competitor, then gaps you could own.",
+  tags: ["competitors", "positioning", "market"], tools: ["deep-research skill", "Claude"],
+  body: `Analyze these competitors for {{My business|my AI creative studio}}: {{Competitors|Studio A, Studio B, Studio C (add links)}}.
+For each: offer, pricing, positioning, target clients, content strategy, strengths and weaknesses.
+Then a comparison table and 5 gaps I could own.` },
+
+{ id: "rsc-03", cat: "research", title: "Interview guide",
+  desc: "Screener, 30-minute guide and note template without leading questions.",
+  tags: ["interviews", "user research"], tools: ["user-research skill"],
+  body: `Use the user-research skill. I want to learn {{Goal|why brands hesitate to use AI-generated ads}}.
+Participants: {{Participants|marketing managers at D2C brands}}.
+Create a recruiting screener, a 30-minute interview guide (warm-up, core questions, probes, wrap-up) and a note-taking template. Avoid leading questions.` },
+
+{ id: "rsc-04", cat: "research", title: "Turn feedback into insights",
+  desc: "Themes with counts and quotes, segments and prioritized recommendations.",
+  tags: ["synthesis", "feedback", "insights"], tools: ["research-synthesis skill"],
+  body: `Use the research-synthesis skill. Here is raw feedback:
+{{Feedback|paste interview notes, reviews, survey answers or client emails}}
+
+Find the themes, count how often each appears, pull 1–2 direct quotes per theme, identify user segments, and give recommendations ranked by impact and effort.` },
+
+{ id: "rsc-05", cat: "research", title: "Trend scan",
+  desc: "Current trends with evidence, maturity and one way to use each this month.",
+  tags: ["trends", "strategy"], tools: ["deep-research skill"],
+  body: `Scan current trends in {{Field|AI video and creative production}} that matter to {{Who|a solo creator selling to brands}}.
+For each trend: what it is, evidence with sources, how early or mature it is, and one concrete way I could use it this month.
+End with 3 trends that are hype, and why.` },
+
+/* ---------------- DOCS ---------------- */
+{ id: "doc-01", cat: "docs", title: "Client creative brief",
+  desc: "A shareable brief doc covering deliverables, mandatories, timeline and approvals.",
+  tags: ["brief", "client", "document"], tools: ["docs skill"],
+  body: `Use the docs skill to create a creative brief for {{Client|Bloom Skincare}}. Project: {{Project|3 x 15-second product videos for a spring launch}}.
+Sections: background, objective, audience, key message, deliverables (formats, lengths, aspect ratios), mandatories (logo, legal lines), tone, references, timeline ({{Deadline|2 weeks}}), budget, approval process.` },
+
+{ id: "doc-02", cat: "docs", title: "Proposal with pricing tiers",
+  desc: "Approach, deliverables, timeline, three tiers, revisions and usage rights.",
+  tags: ["proposal", "pricing", "sales"], tools: ["docs skill", "Claude"],
+  body: `Write a proposal for {{Client|a coffee brand}} for {{Scope|10 AI-generated short ads and 30 product images per month}}.
+Include: their goal in my words, approach and workflow, deliverables, timeline, 3 pricing tiers ({{Price range|$1.5k to $6k per month}}), revision policy, usage rights and next steps.
+Tone: confident and clear.` },
+
+{ id: "doc-03", cat: "docs", title: "Pitch deck",
+  desc: "Ten slides, one message each, with a visual suggestion per slide.",
+  tags: ["deck", "slides", "pitch"], tools: ["Slides", "pptx skill"],
+  body: `Make a {{Slides|10}}-slide pitch deck for {{Topic|my AI creative studio}} aimed at {{Audience|brand marketing teams}}.
+Slides: title, problem, solution, how it works, portfolio highlights, case study with results, process and timeline, pricing, team, CTA.
+One key message per slide, minimal text, and a suggested visual for each.` },
+
+{ id: "doc-04", cat: "docs", title: "Production tracker spreadsheet",
+  desc: "Track every deliverable, its tool, prompt, status, cost and revisions, with a summary sheet.",
+  tags: ["tracker", "spreadsheet", "operations"], tools: ["xlsx skill"],
+  body: `Build a spreadsheet to track my creative production.
+Columns: project, client, deliverable, model or tool used, prompt link, status ({{Statuses|brief, generating, editing, review, delivered}}), due date, credits or cost, revisions, notes.
+Add a summary sheet with counts by status, total cost per client, and overdue items highlighted.` },
+
+{ id: "doc-05", cat: "docs", title: "Campaign results dashboard",
+  desc: "Spend, CTR, CPA and conversions over time with one insight per chart.",
+  tags: ["dashboard", "analytics", "charts"], tools: ["dataviz skill"],
+  body: `Use the dataviz skill. Here is my data:
+{{Data|paste a CSV of campaigns: date, ad, spend, impressions, clicks, conversions}}
+
+Build a dashboard showing spend, CTR, CPA and conversions over time, plus the top 5 ads, with one key insight per chart. It must read well in light and dark mode.` },
+
+{ id: "doc-06", cat: "docs", title: "Meeting notes to action items",
+  desc: "Summary, decisions, owners and deadlines, plus a follow-up email.",
+  tags: ["meetings", "summary", "email"], tools: ["Claude"],
+  body: `Turn these notes into a clean summary:
+{{Notes|paste raw notes or a transcript}}
+
+Output: a 3-line summary, decisions made, action items with owner and deadline, open questions, and a short follow-up email to {{Recipient|the client}}.` },
+
+/* ---------------- BUILD ---------------- */
+{ id: "dev-01", cat: "build", title: "Portfolio website",
+  desc: "A fast, accessible portfolio with a work grid, services and contact, ready for GitHub Pages.",
+  tags: ["website", "portfolio", "html"], tools: ["Claude Code"],
+  body: `Build a fast, responsive portfolio website for {{Name|Sage}}, {{Role|AI creative director making ads, short films and AI images}}.
+Sections: {{Sections|hero showreel, selected work grid with filters, services, process, testimonials, contact}}.
+Style: {{Style|dark, cinematic, bold display type, subtle motion}}. Tech: {{Tech|plain HTML, CSS and JS, no build step}}.
+Requirements: mobile first, accessible, lazy-loaded video thumbnails, SEO meta tags, fast first paint.
+Commit to git when done and tell me how to publish it on GitHub Pages.` },
+
+{ id: "dev-02", cat: "build", title: "Turn my workflow into a skill",
+  desc: "Package a repeat process as a Claude skill with triggers, steps, checklist and evals.",
+  tags: ["skill", "automation", "claude"], tools: ["skill-creator skill"],
+  body: `Use the skill-creator skill. Turn this repeatable workflow into a skill: {{Workflow|how I turn a client brief into 5 video prompts, generate, review and deliver}}.
+Name: {{Skill name|ad-video-pipeline}}.
+Include: when it should trigger, step-by-step instructions, required inputs, output format, a quality checklist and 2 example runs.
+Then write 3 eval cases to test it.` },
+
+{ id: "dev-03", cat: "build", title: "Automate a weekly task",
+  desc: "Design a scheduled automation with a dry run before anything destructive.",
+  tags: ["automation", "schedule", "script"], tools: ["Claude Code", "scheduled tasks"],
+  body: `Every {{Frequency|Monday at 9 am}} I {{Task|collect last week's generations, rename them by client and project, and write a summary of credits spent}}.
+Design an automation for this with Claude Code: inputs it needs, the script, where it runs, the schedule, and how it reports to me.
+Start with a dry run and show me the output before doing anything destructive.` },
+
+{ id: "dev-04", cat: "build", title: "GPU workflow on RunPod",
+  desc: "Pod vs serverless, GPU choice and hourly cost before anything billable is created.",
+  tags: ["gpu", "comfyui", "runpod"], tools: ["RunPod"],
+  body: `I want to run {{Workflow|a ComfyUI workflow for image upscaling and video interpolation}} on RunPod.
+Recommend: pod or serverless, GPU type and expected hourly cost, template, network volume size, and the deployment steps.
+Tell me the price before creating anything billable, and remind me how to stop it so I don't waste credits.` },
+
+{ id: "dev-05", cat: "build", title: "Code review before shipping",
+  desc: "Review a branch for bugs, fix the confirmed issues and summarize the changes.",
+  tags: ["review", "quality", "bugs"], tools: ["code-review skill"],
+  body: `Use the code-review skill at {{Level|high}} effort on {{Target|my current branch}}.
+Focus on {{Focus|bugs, broken mobile layout, and the security of the contact form}}.
+Then fix the confirmed issues and summarize what changed.` },
+
+{ id: "dev-06", cat: "build", title: "Prompt improver",
+  desc: "Meta-prompt that rewrites any prompt with role, inputs, steps, format and a quality bar.",
+  tags: ["meta-prompt", "prompt engineering"], tools: ["Claude"],
+  body: `You are a prompt engineer. Improve this prompt for {{Target|Claude}}:
+{{Prompt|paste your prompt}}
+
+Goal of the prompt: {{Goal|get a ready-to-post script}}.
+Make it specific: add role and context, inputs, step-by-step task, output format, constraints and a quality bar. Use clear sections.
+Return the improved prompt in a code block, then list what you changed and why in at most 5 bullets.` }
+];
+
+/* ---------------- VOCABULARY ---------------- */
+VAULT.vocab = [
+  { group: "Shot sizes", terms: [
+    ["Extreme wide shot", "Subject tiny in a vast environment; sets location."],
+    ["Wide shot", "Whole subject plus a lot of surroundings."],
+    ["Full shot", "Head to toe, framed tight to the body."],
+    ["Medium wide (cowboy)", "Mid-thigh up; good for action and gestures."],
+    ["Medium shot", "Waist up; the default for dialogue."],
+    ["Medium close-up", "Chest up; emotion plus some body language."],
+    ["Close-up", "Face fills the frame."],
+    ["Extreme close-up", "Eyes, lips, or a small detail."],
+    ["Insert shot", "Detail of an object or action, like a hand on a key."],
+    ["Over-the-shoulder", "Framed past one character toward another."],
+    ["POV shot", "What the character sees."],
+    ["Two-shot", "Two subjects in one frame."]
+  ]},
+  { group: "Camera angles", terms: [
+    ["Eye level", "Neutral, natural perspective."],
+    ["Low angle", "Camera looks up; subject feels powerful."],
+    ["High angle", "Camera looks down; subject feels small."],
+    ["Bird's-eye view", "Directly overhead."],
+    ["Worm's-eye view", "From the ground looking straight up."],
+    ["Dutch angle", "Tilted horizon; unease or energy."],
+    ["Top-down flat lay", "Overhead product or food layout."],
+    ["Three-quarter angle", "Halfway between front and profile; the classic hero angle."]
+  ]},
+  { group: "Camera moves", terms: [
+    ["Static / locked-off", "No camera movement."],
+    ["Slow push-in", "Camera moves toward the subject; builds focus or tension."],
+    ["Pull-out", "Camera moves away; reveals context."],
+    ["Pan left / right", "Camera rotates horizontally on a fixed point."],
+    ["Tilt up / down", "Camera rotates vertically on a fixed point."],
+    ["Tracking shot", "Camera moves alongside a moving subject."],
+    ["Truck left / right", "Camera slides sideways without rotating."],
+    ["Crane up / jib", "Camera rises vertically; often a reveal."],
+    ["Orbit / arc", "Camera circles around the subject."],
+    ["Handheld", "Organic shake; documentary feel."],
+    ["Gimbal follow", "Smooth follow behind or ahead of the subject."],
+    ["Whip pan", "Very fast pan with motion blur; energetic transition."],
+    ["Crash zoom", "Sudden fast zoom in for emphasis."],
+    ["Dolly zoom", "Dolly and zoom in opposite directions; background warps."],
+    ["Rack focus", "Focus shifts from one subject to another."],
+    ["FPV drone dive", "Fast, agile flight through spaces."],
+    ["Aerial pullback", "Drone rises and pulls away to reveal scale."]
+  ]},
+  { group: "Lenses", terms: [
+    ["14mm ultra-wide", "Huge field of view, strong distortion near edges."],
+    ["24mm wide", "Environmental, a little dramatic."],
+    ["35mm", "Natural, cinematic storytelling lens."],
+    ["50mm", "Close to human vision."],
+    ["85mm portrait", "Flattering faces, creamy background blur."],
+    ["135mm telephoto", "Compressed background, isolated subject."],
+    ["100mm macro", "Tiny details at life size."],
+    ["Anamorphic", "Wide aspect, oval bokeh, horizontal flares."],
+    ["Tilt-shift", "Miniature look with a thin focus band."],
+    ["Fisheye", "Extreme curved distortion; skate and music-video feel."]
+  ]},
+  { group: "Lighting", terms: [
+    ["Golden hour", "Warm, low sun shortly after sunrise or before sunset."],
+    ["Blue hour", "Cool, soft twilight."],
+    ["Rembrandt lighting", "Triangle of light on the shadow-side cheek."],
+    ["Butterfly lighting", "Key light above the face; beauty look."],
+    ["Split lighting", "Half the face lit, half in shadow."],
+    ["Rim light / backlight", "Light outlines the subject from behind."],
+    ["Softbox key", "Large, soft, flattering light source."],
+    ["Hard light", "Crisp shadows; harsh sun or bare bulb."],
+    ["Practical lights", "Lamps and screens visible in the scene."],
+    ["Neon", "Saturated colored light from signs."],
+    ["Volumetric light", "Visible beams through haze or dust."],
+    ["Overcast diffused", "Even, shadowless daylight."],
+    ["Chiaroscuro", "Strong contrast between light and dark."],
+    ["High-key", "Bright, low contrast, few shadows."],
+    ["Low-key", "Mostly dark with selective light."],
+    ["Silhouette", "Subject dark against a bright background."],
+    ["Candlelight", "Warm, flickering, intimate."],
+    ["Moonlight", "Cool, dim, blue-silver."]
+  ]},
+  { group: "Looks & styles", terms: [
+    ["35mm film", "Organic grain and color roll-off."],
+    ["16mm film grain", "Heavier grain, indie or documentary feel."],
+    ["Kodak Portra 400 look", "Warm, soft skin tones, gentle contrast."],
+    ["Cinestill 800T look", "Tungsten film with red halation around lights."],
+    ["Documentary handheld", "Observational, real-world."],
+    ["Editorial fashion", "Polished, styled, magazine look."],
+    ["Commercial product", "Clean, controlled, sharp."],
+    ["Symmetrical pastel storybook", "Centered framing, pastel palette."],
+    ["Film noir", "Black and white, hard shadows, venetian blinds."],
+    ["Cyberpunk neon", "Rainy streets, neon, high tech."],
+    ["Claymation", "Handmade clay texture and stop-motion feel."],
+    ["Stylized 3D animation", "Soft, rounded animated-feature look."],
+    ["Anime cel", "Flat color, ink lines, painted backgrounds."],
+    ["Watercolor", "Soft washes and paper texture."],
+    ["Isometric 3D", "Diorama seen from a fixed 3/4 angle."],
+    ["Low-poly", "Faceted geometric 3D."]
+  ]},
+  { group: "Color grades", terms: [
+    ["Teal and orange", "Blockbuster contrast of skin and shadows."],
+    ["Bleach bypass", "Desaturated, high contrast, gritty."],
+    ["Muted pastel", "Soft, low saturation."],
+    ["High-contrast monochrome", "Deep blacks, bright whites."],
+    ["Warm vintage", "Faded blacks, warm highlights."],
+    ["Cool desaturated", "Cold, quiet, Nordic."],
+    ["Day for night", "Daytime footage graded to look like night."],
+    ["Cyan and magenta", "Neon night palette."]
+  ]},
+  { group: "Aspect ratios", terms: [
+    ["16:9", "YouTube, TV, desktop."],
+    ["9:16", "TikTok, Reels, Shorts, Stories."],
+    ["1:1", "Square feed posts."],
+    ["4:5", "Tall feed posts on Instagram."],
+    ["2.39:1", "Widescreen cinema."],
+    ["21:9", "Ultrawide banners and cinematic web."],
+    ["3:2", "Classic photo frame."]
+  ]},
+  { group: "Transitions & edit", terms: [
+    ["Hard cut", "Instant change between shots."],
+    ["Match cut", "Cut between two shots with matching shape or motion."],
+    ["Whip-pan transition", "Blur from one shot into the next."],
+    ["Smash cut", "Abrupt cut for contrast or comedy."],
+    ["Morph transition", "One subject transforms into another."],
+    ["J-cut", "Next scene's audio starts before its picture."],
+    ["L-cut", "Previous scene's audio continues over the next picture."],
+    ["Speed ramp", "Slow motion that snaps to real time, or the reverse."]
+  ]},
+  { group: "Audio", terms: [
+    ["Ambience bed", "Continuous background sound of the location."],
+    ["Foley", "Recreated everyday sounds: steps, cloth, props."],
+    ["Room tone", "Quiet natural sound of a space."],
+    ["Diegetic music", "Music that exists in the scene."],
+    ["Score", "Music added for mood, not heard by characters."],
+    ["Riser", "Sound that builds tension into a moment."],
+    ["Whoosh", "Movement sound for transitions."],
+    ["Stinger", "Short hit that punctuates a moment."]
+  ]}
+];
+
+/* ---------------- FORMULAS (from public prompting guides) ---------------- */
+VAULT.formulas = [
+  { title: "Image prompt", parts: ["Subject", "Setting", "Composition", "Lighting", "Camera / lens", "Color & mood", "Style", "Aspect ratio"],
+    note: "Be specific about the subject and lighting; skip parts you don't need. Stacking quality buzzwords dilutes results.",
+    sources: [["Luma: AI image prompting guide", "https://lumalabs.ai/news/ai-image-prompting-guide"], ["Kling: image prompt formula", "https://kling.ai/blog/best-way-to-write-image-prompts"]] },
+  { title: "Video shot", parts: ["Subject", "Action", "Setting", "Camera", "Style", "Audio", "Constraints"],
+    note: "Name shot size, movement and angle. Tie the camera move to an event in the scene so it feels motivated.",
+    sources: [["Kapwing: prompting Seedance 2.5", "https://www.kapwing.com/resources/how-to-prompt-seedance-2-5-a-guide-for-ai-video-creators/"], ["fal: Kling 3.0 prompting guide", "https://blog.fal.ai/kling-3-0-prompting-guide/"]] },
+  { title: "Timeline prompting", parts: ["[0–3s] Shot 1", "[3–6s] Shot 2", "[6–10s] Shot 3", "Global style line"],
+    note: "Split the clip into timed beats of 2–3 sentences. Without timestamps the model decides cuts and camera on its own. Lock characters with identical wording in every shot.",
+    sources: [["MindStudio: timeline prompting", "https://www.mindstudio.ai/blog/timeline-prompting-seedance-2-cinematic-ai-video"]] },
+  { title: "UGC ad", parts: ["Hook 0–3s", "Problem", "Product + proof", "CTA"],
+    note: "Test hooks by angle, not by rewording. Keep hooks under 12 words. Don't make claims you can't back up.",
+    sources: [["Tolstoy: structuring UGC ads", "https://www.gotolstoy.com/blog/how-to-structure-ugc-ads"], ["Magic Hour: UGC-style ads with AI", "https://magichour.ai/blog/how-to-make-ugc-style-video-ads"]] }
+];
+
+/* ---------------- ROADMAP ---------------- */
+VAULT.roadmap = [
+  { stage: "Shipped", note: "In this version.", items: [
+    ["done", "Fill-in templates", "Every blank becomes a form field with a live, highlighted preview."],
+    ["done", "Search, filters and sorting", "Across titles, tags, tools and prompt text; filter by skill, favorites, recent or your own."],
+    ["done", "Your own prompts", "Write, duplicate, edit and delete templates using the {{Name|default}} syntax."],
+    ["done", "Prompt builder", "Assemble image and video prompts from standard film vocabulary."],
+    ["done", "Backup", "Export and import favorites and custom prompts as JSON."],
+    ["done", "Deep links", "Every prompt has its own link, like #vid-02, to share or bookmark."]
+  ]},
+  { stage: "Next", note: "Small additions with a big payoff.", items: [
+    ["next", "Result gallery per prompt", "Attach the image or video a prompt produced, so you can see which wording worked."],
+    ["next", "Version history", "Keep every edit of a prompt with a note on what changed and why."],
+    ["next", "Model variants", "One template, tuned versions per model (Kling, Seedance, image models), since each responds to different wording."],
+    ["next", "Rating and notes", "Score each run 1–5 and note the model, seed and settings; sort by best results."],
+    ["next", "Prompt chains", "Link templates into a pipeline: brief, then image keyframe, then video shot, then voiceover, then caption."],
+    ["next", "Brand presets", "Save brand suffixes and character locks once and insert them into any prompt with one click."]
+  ]},
+  { stage: "Later", note: "Bigger features for a team or a business.", items: [
+    ["later", "Shared team library", "One library your collaborators can read and add to, with comments on each prompt."],
+    ["later", "Improve with AI", "A button that sends a prompt to Claude for a sharper rewrite, using the prompt improver template."],
+    ["later", "Client mode", "Share a read-only collection with a client so they can pick a direction."],
+    ["later", "Cost tracker", "Log credits per generation and see spend per client or project."],
+    ["later", "Multilingual prompts", "Translate templates while keeping the camera and lighting terms in English, which models follow best."],
+    ["later", "Install as an app", "Offline use and a home-screen icon on phone and desktop."],
+    ["later", "Template marketplace", "Sell or give away curated prompt packs built from your best-performing templates."]
+  ]},
+  { stage: "Prompt packs to add", note: "Areas worth writing new templates for.", items: [
+    ["later", "Music video and lyric visuals", "Beat-synced shot lists and performance shots."],
+    ["later", "Real estate and architecture", "Walkthroughs, twilight exteriors, virtual staging."],
+    ["later", "Food and beverage", "Pours, steam, macro textures and menu shots."],
+    ["later", "Fashion lookbooks", "Consistent model across outfits, editorial poses, runway motion."],
+    ["later", "Explainers and tutorials", "Screen-recording scripts, diagrams and talking-head structures."],
+    ["later", "3D assets", "Image-to-3D, product turntables, game-ready props."],
+    ["later", "Client communication", "Feedback replies, scope-change emails, invoice reminders."]
+  ]}
+];
+
+/* Creative Prompt Vault — app logic. No dependencies. */
+(function () {
+  "use strict";
+
+  const V = window.VAULT;
+  const $ = (s, el) => (el || document).querySelector(s);
+  const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+  const STORE_KEY = "promptVault.v1";
+  const VAR_RE = /\{\{\s*([^{}|]+?)\s*(?:\|([^{}]*))?\}\}/g;
+
+  /* ---------- Storage (per browser, failure-tolerant) ---------- */
+  const blank = () => ({ favs: [], used: {}, recent: [], custom: [], fills: {}, builder: {} });
+  let store = blank();
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) store = Object.assign(blank(), JSON.parse(raw));
+  } catch (e) { /* storage unavailable: run in memory */ }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { /* ignore */ }
+  }
+
+  /* ---------- Helpers ---------- */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const catById = Object.fromEntries(V.categories.map((c) => [c.id, c]));
+  const allPrompts = () => V.prompts.concat(store.custom);
+  const findPrompt = (id) => allPrompts().find((p) => p.id === id);
+
+  function parseVars(body) {
+    const out = [];
+    const seen = new Set();
+    body.replace(VAR_RE, (m, name, def) => {
+      const key = name.trim();
+      if (!seen.has(key)) { seen.add(key); out.push({ name: key, def: (def || "").trim() }); }
+      return m;
+    });
+    return out;
+  }
+  function fillText(body, values) {
+    const defs = Object.fromEntries(parseVars(body).map((v) => [v.name, v.def]));
+    return body.replace(VAR_RE, (m, name, def) => {
+      const key = name.trim();
+      const v = values[key];
+      return v !== undefined && v !== "" ? v : (def || "").trim() || defs[key] || "[" + key + "]";
+    });
+  }
+  function fillHtml(body, values) {
+    const defs = Object.fromEntries(parseVars(body).map((v) => [v.name, v.def]));
+    let html = "";
+    let last = 0;
+    body.replace(VAR_RE, (m, name, def, idx) => {
+      html += esc(body.slice(last, idx));
+      const key = name.trim();
+      const v = values[key];
+      const has = v !== undefined && v !== "";
+      const d = (def || "").trim() || defs[key] || "";
+      const shown = has ? v : d;
+      html += shown
+        ? `<span class="v${has && v !== d ? " edited" : ""}" data-var="${esc(key)}">${esc(shown)}</span>`
+        : `<span class="v empty-v" data-var="${esc(key)}">${esc(key)}</span>`;
+      last = idx + m.length;
+      return m;
+    });
+    return html + esc(body.slice(last));
+  }
+  const words = (s) => (s.trim() ? s.trim().split(/\s+/).length : 0);
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 2200);
+  }
+  function copyText(text, label) {
+    const done = () => toast(label || "Copied");
+    const fallback = () => {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      ta.remove();
+      toast(ok ? (label || "Copied") : "Copy blocked here. Select the text and copy it manually.");
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+  }
+  function markUsed(id) {
+    store.used[id] = (store.used[id] || 0) + 1;
+    store.recent = [id].concat(store.recent.filter((x) => x !== id)).slice(0, 12);
+    save();
+  }
+  const ICON = {
+    star: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/></svg>',
+    all: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>',
+    clock: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>'
+  };
+
+  /* ---------- Library state ---------- */
+  const state = { filter: "all", query: "", sort: "featured" };
+  try {
+    const f = sessionStorage.getItem("promptVault.filter");
+    if (f) state.filter = f;
+  } catch (e) { /* ignore */ }
+
+  function matches(p, tokens) {
+    if (!tokens.length) return 1;
+    const cat = catById[p.cat];
+    const title = p.title.toLowerCase();
+    const hay = [p.title, p.desc, (p.tags || []).join(" "), (p.tools || []).join(" "), p.body, cat ? cat.name + " " + cat.skill : ""].join(" ").toLowerCase();
+    let score = 0;
+    for (const t of tokens) {
+      if (!hay.includes(t)) return 0;
+      score += title.includes(t) ? 3 : 1;
+    }
+    return score;
+  }
+
+  function currentList() {
+    const tokens = state.query.toLowerCase().split(/\s+/).filter(Boolean);
+    let list = allPrompts();
+    if (state.filter === "fav") list = list.filter((p) => store.favs.includes(p.id));
+    else if (state.filter === "recent") list = store.recent.map(findPrompt).filter(Boolean);
+    else if (state.filter !== "all") list = list.filter((p) => p.cat === state.filter);
+
+    const scored = list.map((p, i) => ({ p, i, s: matches(p, tokens) })).filter((x) => x.s > 0);
+    const by = {
+      featured: (a, b) => (tokens.length ? b.s - a.s : 0) || a.i - b.i,
+      az: (a, b) => a.p.title.localeCompare(b.p.title),
+      used: (a, b) => (store.used[b.p.id] || 0) - (store.used[a.p.id] || 0) || a.i - b.i,
+      vars: (a, b) => parseVars(a.p.body).length - parseVars(b.p.body).length || a.i - b.i
+    }[state.sort];
+    if (!(state.filter === "recent" && state.sort === "featured" && !tokens.length)) scored.sort(by);
+    return scored.map((x) => x.p);
+  }
+
+  function countFor(filter) {
+    if (filter === "all") return allPrompts().length;
+    if (filter === "fav") return store.favs.filter(findPrompt).length;
+    if (filter === "recent") return store.recent.filter(findPrompt).length;
+    return allPrompts().filter((p) => p.cat === filter).length;
+  }
+
+  function renderSidebar() {
+    const views = [["all", "All prompts", ICON.all], ["fav", "Favorites", ICON.star], ["recent", "Recently copied", ICON.clock]];
+    $("#sideViews").innerHTML = views.map(([id, label, icon]) =>
+      `<button class="side-btn" type="button" data-filter="${id}" aria-pressed="${state.filter === id}"><span class="glyph">${icon}</span><span>${label}</span><span class="n">${countFor(id)}</span></button>`
+    ).join("");
+    $("#sideCats").innerHTML = V.categories.map((c) =>
+      `<button class="side-btn" type="button" data-filter="${c.id}" aria-pressed="${state.filter === c.id}" title="${esc(c.skill)}"><span class="code">${c.code}</span><span>${esc(c.name)}</span><span class="n">${countFor(c.id)}</span></button>`
+    ).join("");
+    const chips = [["all", "All"], ["fav", "Favorites"], ["recent", "Recent"]].concat(V.categories.map((c) => [c.id, c.name]));
+    $("#catChips").innerHTML = chips.map(([id, label]) =>
+      `<button class="chip" type="button" data-filter="${id}" aria-pressed="${state.filter === id}">${esc(label)} <span>${countFor(id)}</span></button>`
+    ).join("");
+  }
+
+  function renderStats() {
+    const builtIn = V.prompts.length;
+    const skills = V.categories.filter((c) => c.id !== "custom").length;
+    const blanks = V.prompts.reduce((n, p) => n + parseVars(p.body).length, 0);
+    $("#stats").innerHTML =
+      `<div><dt>Prompts</dt><dd>${builtIn + store.custom.length}</dd></div>` +
+      `<div><dt>Skills</dt><dd>${skills}</dd></div>` +
+      `<div><dt>Fill-in blanks</dt><dd>${blanks}</dd></div>`;
+  }
+
+  function cardHtml(p) {
+    const cat = catById[p.cat] || catById.custom;
+    const n = parseVars(p.body).length;
+    const fav = store.favs.includes(p.id);
+    const tags = (p.tags || []).slice(0, 4).map((t) => `<span class="tag">${esc(t)}</span>`).join("");
+    return `<article class="card" data-id="${esc(p.id)}">
+      <div class="card-top"><span class="code">${cat.code}</span><span>${esc(cat.name)}</span>${p.cat === "custom" ? '<span class="mine">Yours</span>' : ""}</div>
+      <h3><button type="button" data-open="${esc(p.id)}">${esc(p.title)}</button></h3>
+      <p class="desc">${esc(p.desc || "")}</p>
+      <div class="tags">${tags}</div>
+      <div class="card-foot">
+        <span class="blanks">${n} blank${n === 1 ? "" : "s"}</span>
+        ${store.used[p.id] ? `<span>· copied ${store.used[p.id]}×</span>` : ""}
+        <span class="spacer"></span>
+        <button class="iconbtn" type="button" data-fav="${esc(p.id)}" aria-pressed="${fav}" aria-label="${fav ? "Remove from" : "Add to"} favorites">${ICON.star}</button>
+        <button class="btn" type="button" data-quickcopy="${esc(p.id)}">Copy</button>
+      </div>
+    </article>`;
+  }
+
+  function renderGrid() {
+    const list = currentList();
+    $("#grid").innerHTML = list.map(cardHtml).join("");
+    const empty = list.length === 0;
+    $("#empty").hidden = !empty;
+    const label = state.filter === "all" ? "all skills"
+      : state.filter === "fav" ? "favorites"
+      : state.filter === "recent" ? "recently copied"
+      : (catById[state.filter] || {}).name;
+    const extra = state.filter === "fav" && empty && !state.query ? " Tap the star on any prompt to keep it here." : "";
+    $("#resultMeta").textContent = `${list.length} prompt${list.length === 1 ? "" : "s"} in ${label}${state.query ? ` matching “${state.query}”` : ""}.${extra}`;
+    if (state.filter === "custom" && empty && !state.query) {
+      $("#empty h3").textContent = "No prompts of your own yet";
+      $("#empty p").textContent = "Write one from scratch, duplicate any template, or save one from the builder.";
+    } else {
+      $("#empty h3").textContent = "No prompts match";
+      $("#empty p").textContent = "Try a shorter search, pick another skill, or write your own template.";
+    }
+  }
+
+  function refreshLibrary() {
+    renderSidebar();
+    renderStats();
+    renderGrid();
+  }
+
+  function setFilter(f) {
+    state.filter = f;
+    try { sessionStorage.setItem("promptVault.filter", f); } catch (e) { /* ignore */ }
+    refreshLibrary();
+  }
+
+  function toggleFav(id) {
+    const i = store.favs.indexOf(id);
+    if (i >= 0) store.favs.splice(i, 1); else store.favs.push(id);
+    save();
+    return i < 0;
+  }
+
+  /* ---------- Library events ---------- */
+  document.addEventListener("click", (e) => {
+    const f = e.target.closest("[data-filter]");
+    if (f) { setFilter(f.dataset.filter); return; }
+    const fav = e.target.closest("[data-fav]");
+    if (fav) {
+      const on = toggleFav(fav.dataset.fav);
+      toast(on ? "Added to favorites" : "Removed from favorites");
+      refreshLibrary();
+      return;
+    }
+    const qc = e.target.closest("[data-quickcopy]");
+    if (qc) {
+      const p = findPrompt(qc.dataset.quickcopy);
+      copyText(fillText(p.body, store.fills[p.id] || {}), "Prompt copied with " + (store.fills[p.id] ? "your saved values" : "example values"));
+      markUsed(p.id);
+      refreshLibrary();
+      return;
+    }
+    const op = e.target.closest("[data-open]");
+    if (op) { openDrawer(op.dataset.open); return; }
+  });
+
+  const searchEl = $("#search");
+  searchEl.addEventListener("input", () => { state.query = searchEl.value; renderGrid(); });
+  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderGrid(); });
+  $("#emptyNew").addEventListener("click", () => openEditor());
+  $("#newPromptBtn").addEventListener("click", () => openEditor());
+
+  /* ---------- Drawer ---------- */
+  let current = null;
+  let lastFocus = null;
+
+  function openDrawer(id, opts) {
+    const p = findPrompt(id);
+    if (!p) return;
+    current = p;
+    lastFocus = document.activeElement;
+    const cat = catById[p.cat] || catById.custom;
+    $("#dCode").textContent = cat.code;
+    $("#dCat").textContent = cat.name;
+    $("#dTitle").textContent = p.title;
+    $("#dDesc").textContent = p.desc || "";
+    $("#dTools").innerHTML = (p.tools && p.tools.length ? "<span>Works with</span>" + p.tools.map((t) => `<span class="tool">${esc(t)}</span>`).join("") : "") +
+      (p.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("");
+    renderForm();
+    updatePreview();
+    syncFavBtn();
+    const mine = p.cat === "custom";
+    $("#dEdit").hidden = !mine;
+    $("#dDelete").hidden = !mine;
+    resetDelete();
+    $("#scrim").hidden = false;
+    $("#drawer").hidden = false;
+    document.body.style.overflow = "hidden";
+    if (!(opts && opts.fromHash)) setHash(p.id);
+    const first = $("#dForm input, #dForm textarea");
+    (first || $("#dClose")).focus({ preventScroll: true });
+  }
+
+  function closeDrawer() {
+    if ($("#drawer").hidden) return;
+    $("#drawer").hidden = true;
+    $("#scrim").hidden = true;
+    document.body.style.overflow = "";
+    current = null;
+    setHash("library");
+    refreshLibrary();
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+  }
+
+  function renderForm() {
+    const vars = parseVars(current.body);
+    const fills = store.fills[current.id] || {};
+    const form = $("#dForm");
+    if (!vars.length) {
+      form.innerHTML = '<p class="none">This prompt has no blanks. Copy it as it is.</p>';
+      return;
+    }
+    form.innerHTML = vars.map((v, i) => {
+      const id = "fv-" + i;
+      const val = fills[v.name] !== undefined ? fills[v.name] : v.def;
+      const long = v.def.length > 70 || /paste|transcript|notes|feedback|data|prompt|script/i.test(v.name + " " + v.def);
+      const input = long
+        ? `<textarea id="${id}" rows="3" data-var="${esc(v.name)}">${esc(val)}</textarea>`
+        : `<input id="${id}" data-var="${esc(v.name)}" value="${esc(val)}">`;
+      return `<label class="field" for="${id}"><span>${esc(v.name)}</span>${input}</label>`;
+    }).join("");
+  }
+
+  function currentValues() {
+    const vals = {};
+    $$("#dForm [data-var]").forEach((el) => { vals[el.dataset.var] = el.value; });
+    return vals;
+  }
+
+  function updatePreview() {
+    const vals = currentValues();
+    $("#dOut").innerHTML = fillHtml(current.body, vals);
+    const text = fillText(current.body, vals);
+    $("#dCount").textContent = `${words(text)} words · ${text.length} characters`;
+  }
+
+  function syncFavBtn() {
+    const on = store.favs.includes(current.id);
+    const b = $("#dFav");
+    b.setAttribute("aria-pressed", String(on));
+    b.setAttribute("aria-label", on ? "Remove from favorites" : "Add to favorites");
+  }
+
+  $("#dForm").addEventListener("input", (e) => {
+    if (!current) return;
+    const vals = currentValues();
+    const defaults = Object.fromEntries(parseVars(current.body).map((v) => [v.name, v.def]));
+    const changed = Object.keys(vals).some((k) => vals[k] !== defaults[k]);
+    if (changed) store.fills[current.id] = vals; else delete store.fills[current.id];
+    save();
+    updatePreview();
+    highlight(e.target.dataset.var);
+  });
+  $("#dForm").addEventListener("focusin", (e) => { if (e.target.dataset.var) highlight(e.target.dataset.var); });
+  $("#dForm").addEventListener("focusout", () => highlight(null));
+  $("#dForm").addEventListener("submit", (e) => e.preventDefault());
+  function highlight(name) {
+    $$("#dOut .v").forEach((s) => s.classList.toggle("hot", name !== null && s.dataset.var === name));
+  }
+
+  $("#dCopy").addEventListener("click", () => {
+    copyText(fillText(current.body, currentValues()), "Prompt copied");
+    markUsed(current.id);
+  });
+  $("#dCopyRaw").addEventListener("click", () => copyText(current.body, "Template copied with blanks"));
+  $("#dReset").addEventListener("click", () => {
+    delete store.fills[current.id];
+    save();
+    renderForm();
+    updatePreview();
+    toast("Blanks reset to examples");
+  });
+  $("#dFav").addEventListener("click", () => {
+    const on = toggleFav(current.id);
+    syncFavBtn();
+    toast(on ? "Added to favorites" : "Removed from favorites");
+  });
+  $("#dDuplicate").addEventListener("click", () => {
+    const p = current;
+    closeDrawer();
+    openEditor({ title: p.title + " (my version)", cat: "custom", origCat: p.origCat || p.cat, tags: p.tags, desc: p.desc, body: p.body, tools: p.tools });
+  });
+  $("#dEdit").addEventListener("click", () => {
+    const p = current;
+    closeDrawer();
+    openEditor(p, true);
+  });
+  function resetDelete() {
+    const b = $("#dDelete");
+    b.classList.remove("confirm");
+    b.textContent = "Delete";
+  }
+  $("#dDelete").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    if (!b.classList.contains("confirm")) {
+      b.classList.add("confirm");
+      b.textContent = "Click again to delete";
+      return;
+    }
+    const id = current.id;
+    store.custom = store.custom.filter((p) => p.id !== id);
+    store.favs = store.favs.filter((x) => x !== id);
+    store.recent = store.recent.filter((x) => x !== id);
+    delete store.fills[id];
+    delete store.used[id];
+    save();
+    closeDrawer();
+    toast("Prompt deleted");
+  });
+  $("#dClose").addEventListener("click", closeDrawer);
+  $("#scrim").addEventListener("click", closeDrawer);
+
+  /* ---------- Editor ---------- */
+  let editingId = null;
+  function openEditor(p, isEdit) {
+    editingId = isEdit ? p.id : null;
+    $("#eTitle").textContent = isEdit ? "Edit prompt" : "New prompt";
+    $("#eCat").innerHTML = V.categories.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+    $("#eName").value = p ? p.title : "";
+    $("#eCat").value = p ? (p.origCat || p.cat || "custom") : "custom";
+    $("#eTags").value = p && p.tags ? p.tags.join(", ") : "";
+    $("#eDesc").value = p ? p.desc || "" : "";
+    $("#eBody").value = p ? p.body : "";
+    $("#eError").hidden = true;
+    updateVarHint();
+    showModal("#editor");
+    $("#eName").focus();
+  }
+  function updateVarHint() {
+    const vars = parseVars($("#eBody").value);
+    $("#eVars").textContent = vars.length
+      ? `Blanks found (${vars.length}): ${vars.map((v) => v.name).join(", ")}`
+      : "No blanks yet. Wrap anything you want to change each time in {{ }}, for example {{Product|a red sneaker}}.";
+  }
+  $("#eBody").addEventListener("input", updateVarHint);
+  $("#editorForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const title = $("#eName").value.trim();
+    const body = $("#eBody").value.trim();
+    if (!title || !body) {
+      $("#eError").textContent = "Add a title and the prompt text before saving.";
+      $("#eError").hidden = false;
+      return;
+    }
+    const chosen = $("#eCat").value;
+    const rec = {
+      id: editingId || "own-" + Date.now().toString(36),
+      cat: "custom",
+      origCat: chosen,
+      title,
+      desc: $("#eDesc").value.trim(),
+      tags: $("#eTags").value.split(",").map((t) => t.trim()).filter(Boolean).concat(chosen !== "custom" ? [catById[chosen].name] : []).filter((t, i, a) => a.indexOf(t) === i),
+      tools: [],
+      body
+    };
+    if (editingId) {
+      const old = store.custom.find((x) => x.id === editingId);
+      if (old) rec.tools = old.tools || [];
+      store.custom = store.custom.map((x) => (x.id === editingId ? rec : x));
+      delete store.fills[editingId];
+    } else {
+      store.custom.unshift(rec);
+    }
+    save();
+    hideModal("#editor");
+    setFilter("custom");
+    showView("library");
+    toast(editingId ? "Prompt updated" : "Prompt saved to My prompts");
+    openDrawer(rec.id);
+  });
+
+  /* ---------- Modals ---------- */
+  let modalReturn = null;
+  function showModal(sel) {
+    modalReturn = document.activeElement;
+    $(sel).hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+  function hideModal(sel) {
+    $(sel).hidden = true;
+    if ($("#drawer").hidden) document.body.style.overflow = "";
+    if (modalReturn && document.contains(modalReturn)) modalReturn.focus({ preventScroll: true });
+  }
+  $$(".modal").forEach((m) => {
+    m.addEventListener("click", (e) => {
+      if (e.target === m || e.target.closest("[data-close]")) hideModal("#" + m.id);
+    });
+  });
+
+  /* ---------- Import / export ---------- */
+  function exportData() {
+    return JSON.stringify({
+      app: "creative-prompt-vault", version: 1, exported: new Date().toISOString(),
+      favorites: store.favs, custom: store.custom, fills: store.fills
+    }, null, 2);
+  }
+  $("#exportBtn").addEventListener("click", () => {
+    $("#ioTitle").textContent = "Export your prompts";
+    $("#ioHint").textContent = `${store.custom.length} of your own prompts, ${store.favs.length} favorites and your saved blanks. Copy this text or download it as a file, then use Import on any device.`;
+    const ta = $("#ioText");
+    ta.value = exportData();
+    ta.readOnly = true;
+    $("#ioFileWrap").hidden = true;
+    $("#ioError").hidden = true;
+    $("#ioFoot").innerHTML = '<button class="btn btn-ghost" type="button" data-close>Close</button><button class="btn" type="button" id="ioDownload">Download .json</button><button class="btn btn-primary" type="button" id="ioCopy">Copy</button>';
+    $("#ioCopy").addEventListener("click", () => copyText(ta.value, "Backup copied"));
+    $("#ioDownload").addEventListener("click", () => {
+      try {
+        const url = URL.createObjectURL(new Blob([ta.value], { type: "application/json" }));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "prompt-vault-backup.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast("Download started. If nothing saved, use Copy instead.");
+      } catch (e) { toast("Download isn't available here. Use Copy instead."); }
+    });
+    showModal("#io");
+    ta.focus();
+    ta.select();
+  });
+  $("#importBtn").addEventListener("click", () => {
+    $("#ioTitle").textContent = "Import prompts";
+    $("#ioHint").textContent = "Paste a backup exported from this library. Prompts with the same ID are replaced; everything else is added.";
+    const ta = $("#ioText");
+    ta.value = "";
+    ta.readOnly = false;
+    ta.placeholder = '{ "custom": [ ... ], "favorites": [ ... ] }';
+    $("#ioFileWrap").hidden = false;
+    $("#ioFile").value = "";
+    $("#ioError").hidden = true;
+    $("#ioFoot").innerHTML = '<button class="btn btn-ghost" type="button" data-close>Cancel</button><button class="btn btn-primary" type="button" id="ioDoImport">Import</button>';
+    $("#ioDoImport").addEventListener("click", () => doImport(ta.value));
+    showModal("#io");
+    ta.focus();
+  });
+  $("#ioFile").addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => { $("#ioText").value = String(r.result); };
+    r.readAsText(file);
+  });
+  function doImport(text) {
+    const err = $("#ioError");
+    let data;
+    try { data = JSON.parse(text); } catch (e) {
+      err.textContent = "That isn't valid JSON. Paste the full text from Export, starting with {.";
+      err.hidden = false;
+      return;
+    }
+    const incoming = Array.isArray(data) ? data : (data.custom || []);
+    const valid = incoming.filter((p) => p && typeof p.title === "string" && typeof p.body === "string");
+    if (!valid.length && !(data.favorites && data.favorites.length)) {
+      err.textContent = "No prompts or favorites found in that text.";
+      err.hidden = false;
+      return;
+    }
+    valid.forEach((p) => {
+      const rec = {
+        id: typeof p.id === "string" && p.id.startsWith("own-") ? p.id : "own-" + Math.random().toString(36).slice(2, 9),
+        cat: "custom", origCat: catById[p.origCat] ? p.origCat : "custom",
+        title: p.title.slice(0, 120), desc: String(p.desc || "").slice(0, 300),
+        tags: Array.isArray(p.tags) ? p.tags.map(String).slice(0, 12) : [],
+        tools: Array.isArray(p.tools) ? p.tools.map(String).slice(0, 8) : [],
+        body: p.body
+      };
+      store.custom = store.custom.filter((x) => x.id !== rec.id);
+      store.custom.push(rec);
+    });
+    if (Array.isArray(data.favorites)) data.favorites.forEach((id) => { if (typeof id === "string" && !store.favs.includes(id)) store.favs.push(id); });
+    if (data.fills && typeof data.fills === "object") Object.assign(store.fills, data.fills);
+    save();
+    hideModal("#io");
+    refreshLibrary();
+    toast(`Imported ${valid.length} prompt${valid.length === 1 ? "" : "s"}`);
+  }
+
+  /* ---------- Builder ---------- */
+  const vocab = Object.fromEntries(V.vocab.map((g) => [g.group, g.terms.map((t) => t[0])]));
+  const BF = {
+    video: [
+      ["subject", "Subject", null, "A lone surfer in a black wetsuit", true],
+      ["action", "Action", null, "paddles out through crashing waves", true],
+      ["setting", "Setting", null, "rocky coastline at dawn, mist over the water", true],
+      ["shot", "Shot size", "Shot sizes", "Wide shot"],
+      ["angle", "Angle", "Camera angles", "Low angle"],
+      ["move", "Camera move", "Camera moves", "Tracking shot"],
+      ["lens", "Lens", "Lenses", "35mm"],
+      ["trigger", "Camera moves when", null, "the first wave breaks"],
+      ["light", "Lighting", "Lighting", "Golden hour"],
+      ["style", "Style", "Looks & styles", "35mm film"],
+      ["grade", "Color grade", "Color grades", "Teal and orange"],
+      ["mood", "Mood", null, "lonely, determined"],
+      ["audio", "Audio", "Audio", "roaring surf, wind, no music", true],
+      ["duration", "Duration", null, "5 seconds"],
+      ["ratio", "Aspect ratio", "Aspect ratios", "16:9"],
+      ["avoid", "Constraints", null, "one continuous shot, no on-screen text, no morphing", true]
+    ],
+    image: [
+      ["subject", "Subject", null, "A ceramic artist shaping a tall vase", true],
+      ["detail", "Details", null, "clay-covered hands, linen apron, focused expression", true],
+      ["setting", "Setting", null, "sunlit studio with shelves of glazed pottery", true],
+      ["shot", "Shot size", "Shot sizes", "Medium shot"],
+      ["angle", "Angle", "Camera angles", "Eye level"],
+      ["lens", "Lens", "Lenses", "50mm"],
+      ["light", "Lighting", "Lighting", "Softbox key"],
+      ["style", "Style", "Looks & styles", "Editorial fashion"],
+      ["grade", "Color grade", "Color grades", "Warm vintage"],
+      ["mood", "Mood", null, "calm, crafted, quiet"],
+      ["ratio", "Aspect ratio", "Aspect ratios", "4:5"],
+      ["avoid", "Avoid", null, "text, watermark, extra fingers", true]
+    ]
+  };
+  let bmode = store.builder.mode === "image" ? "image" : "video";
+  $("#bmode-" + bmode).checked = true;
+
+  function renderBuilderFields() {
+    const saved = store.builder[bmode] || Object.fromEntries(BF[bmode].map(([k, , , ph]) => [k, ph]));
+    const used = new Set();
+    $("#builderFields").innerHTML = BF[bmode].map(([key, label, list, ph, wide]) => {
+      const id = `bf-${bmode}-${key}`;
+      let dl = "";
+      if (list) {
+        used.add(list);
+        dl = ` list="dl-${list.replace(/\W+/g, "")}"`;
+      }
+      return `<label class="field${wide ? " wide" : ""}" for="${id}"><span>${esc(label)}</span><input id="${id}" data-key="${key}" placeholder="${esc(ph)}" value="${esc(saved[key] || "")}"${dl}></label>`;
+    }).join("") + Array.from(used).map((g) =>
+      `<datalist id="dl-${g.replace(/\W+/g, "")}">${vocab[g].map((t) => `<option value="${esc(t)}"></option>`).join("")}</datalist>`
+    ).join("");
+  }
+
+  function rawBuilderValues() {
+    const vals = {};
+    $$("#builderFields [data-key]").forEach((el) => { vals[el.dataset.key] = el.value.trim(); });
+    return vals;
+  }
+
+  const end = (s) => (/[.!?]$/.test(s) ? s : s + ".");
+  function assemble(get, mode) {
+    const lines = [];
+    const join = (...xs) => xs.filter(Boolean).join(", ");
+    const head = [get("subject"), mode === "video" ? get("action") : get("detail")].filter(Boolean);
+    if (head.length) lines.push(end(mode === "video" ? head.join(" ") : head.join(", ")));
+    if (get("setting")) lines.push(end("Setting: " + get("setting")));
+    if (mode === "video") {
+      const cam = join(get("shot"), get("move"), get("angle"), get("lens"));
+      if (cam) lines.push(end("Camera: " + cam) + (get("trigger") ? " " + end("The camera starts moving when " + get("trigger")) : ""));
+      else if (get("trigger")) lines.push(end("The camera starts moving when " + get("trigger")));
+    } else {
+      const comp = join(get("shot"), get("angle"));
+      if (comp) lines.push(end("Composition: " + comp));
+      if (get("lens")) lines.push(end("Camera: " + get("lens")));
+    }
+    if (get("light")) lines.push(end("Lighting: " + get("light")));
+    const style = join(get("style"), get("grade"));
+    if (style) lines.push(end("Style: " + style));
+    if (get("mood")) lines.push(end("Mood: " + get("mood")));
+    if (mode === "video" && get("audio")) lines.push(end("Audio: " + get("audio")));
+    const fmt = join(mode === "video" ? get("duration") : "", get("ratio") ? "aspect ratio " + get("ratio") : "");
+    if (fmt) lines.push(end("Format: " + fmt));
+    if (get("avoid")) lines.push(end((mode === "video" ? "Constraints: " : "Avoid: ") + get("avoid")));
+    return lines.join("\n");
+  }
+
+  const listKeys = new Set(BF.video.concat(BF.image).filter((f) => f[2]).map((f) => f[0]));
+  const lcFirst = (s) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+  function builderValues() {
+    const vals = {};
+    $$("#builderFields [data-key]").forEach((el) => {
+      const v = el.value.trim();
+      vals[el.dataset.key] = listKeys.has(el.dataset.key) ? lcFirst(v) : v;
+    });
+    return vals;
+  }
+
+  function updateBuilder() {
+    const vals = rawBuilderValues();
+    store.builder[bmode] = vals;
+    store.builder.mode = bmode;
+    save();
+    const shown = builderValues();
+    const text = assemble((k) => shown[k] || "", bmode);
+    const out = $("#builderOut");
+    if (text) {
+      out.textContent = text;
+    } else {
+      out.innerHTML = '<span class="v empty-v">Start typing in any field, or pick a suggested term.</span>';
+    }
+    $("#builderCount").textContent = text ? `${words(text)} words` : "";
+  }
+
+  $("#builderForm").addEventListener("change", (e) => {
+    if (e.target.name === "bmode") {
+      bmode = e.target.value;
+      renderBuilderFields();
+    }
+    updateBuilder();
+  });
+  $("#builderForm").addEventListener("input", updateBuilder);
+  $("#builderForm").addEventListener("submit", (e) => e.preventDefault());
+  $("#builderCopy").addEventListener("click", () => {
+    const vals = builderValues();
+    const text = assemble((k) => vals[k] || "", bmode);
+    if (!text) { toast("Fill in at least one field first"); return; }
+    copyText(text, "Prompt copied");
+  });
+  $("#builderReset").addEventListener("click", () => {
+    store.builder[bmode] = {};
+    save();
+    renderBuilderFields();
+    updateBuilder();
+  });
+  $("#builderSave").addEventListener("click", () => {
+    const vals = builderValues();
+    const labels = Object.fromEntries(BF[bmode].map(([k, l]) => [k, l]));
+    const body = assemble((k) => (vals[k] ? `{{${labels[k]}|${vals[k].replace(/[{}|]/g, "")}}}` : ""), bmode);
+    if (!body) { toast("Fill in at least one field first"); return; }
+    openEditor({
+      title: (vals.subject ? vals.subject.slice(0, 50) : "Untitled") + (bmode === "video" ? " (video)" : " (image)"),
+      cat: bmode, desc: "Built with the prompt builder.", tags: [bmode === "video" ? "video" : "image", "builder"], body
+    });
+  });
+
+  /* ---------- Vocabulary ---------- */
+  function renderFormulas() {
+    $("#formulas").innerHTML = V.formulas.map((f) => `<article class="formula">
+      <h3>${esc(f.title)}</h3>
+      <ol>${f.parts.map((p) => `<li>${esc(p)}</li>`).join("")}</ol>
+      <p>${esc(f.note)}</p>
+      <p class="src">Sources: ${f.sources.map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</p>
+    </article>`).join("");
+  }
+  function renderVocab(q) {
+    const t = (q || "").toLowerCase().trim();
+    $("#vocab").innerHTML = V.vocab.map((g) => {
+      const terms = g.terms.filter(([a, b]) => !t || (a + " " + b + " " + g.group).toLowerCase().includes(t));
+      if (!terms.length) return "";
+      return `<section class="vgroup"><h3>${esc(g.group)} <span>${terms.length}</span></h3>${terms.map(([a, b]) =>
+        `<button class="term" type="button" data-term="${esc(a)}"><b>${esc(a)}</b><small>${esc(b)}</small></button>`).join("")}</section>`;
+    }).join("") || '<p class="hint">No terms match.</p>';
+  }
+  $("#vocab").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-term]");
+    if (b) copyText(b.dataset.term, `Copied “${b.dataset.term}”`);
+  });
+  $("#vocabSearch").addEventListener("input", (e) => renderVocab(e.target.value));
+
+  /* ---------- Roadmap ---------- */
+  function renderRoadmap() {
+    const label = { done: "Shipped", next: "Next", later: "Later" };
+    $("#roadmap").innerHTML = V.roadmap.map((s) => `<section class="rm-stage">
+      <h2>${esc(s.stage)}</h2><p>${esc(s.note)}</p>
+      <div class="rm-list">${s.items.map(([st, t, d]) => `<article class="rm-item"><span class="pill ${st}">${label[st]}</span><h3>${esc(t)}</h3><p>${esc(d)}</p></article>`).join("")}</div>
+    </section>`).join("");
+  }
+
+  /* ---------- Routing ---------- */
+  const VIEWS = ["library", "builder", "vocab", "roadmap"];
+  function setHash(h) {
+    try { history.replaceState(null, "", "#" + h); } catch (e) { /* ignore */ }
+  }
+  function showView(name) {
+    VIEWS.forEach((v) => { $("#view-" + v).hidden = v !== name; });
+    $$(".tabs a").forEach((a) => {
+      if (a.dataset.tab === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+  }
+  function route() {
+    const h = decodeURIComponent((location.hash || "").slice(1));
+    if (VIEWS.includes(h)) { closeDrawerSilently(); showView(h); window.scrollTo(0, 0); return; }
+    if (h && findPrompt(h)) { showView("library"); openDrawer(h, { fromHash: true }); return; }
+    showView("library");
+  }
+  function closeDrawerSilently() {
+    if ($("#drawer").hidden) return;
+    $("#drawer").hidden = true;
+    $("#scrim").hidden = true;
+    document.body.style.overflow = "";
+    current = null;
+  }
+  window.addEventListener("hashchange", route);
+
+  /* ---------- Keyboard ---------- */
+  document.addEventListener("keydown", (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+    if (e.key === "Escape") {
+      const open = $$(".modal").find((m) => !m.hidden);
+      if (open) { hideModal("#" + open.id); return; }
+      if (!$("#drawer").hidden) { closeDrawer(); return; }
+      if (typing && e.target === searchEl && searchEl.value) { searchEl.value = ""; state.query = ""; renderGrid(); }
+      return;
+    }
+    if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey) {
+      e.preventDefault();
+      showView("library");
+      setHash("library");
+      searchEl.focus();
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && current && !$("#drawer").hidden) {
+      e.preventDefault();
+      $("#dCopy").click();
+    }
+  });
+
+  /* ---------- Boot ---------- */
+  if (state.filter !== "all" && state.filter !== "fav" && state.filter !== "recent" && !catById[state.filter]) state.filter = "all";
+  refreshLibrary();
+  renderBuilderFields();
+  updateBuilder();
+  renderFormulas();
+  renderVocab();
+  renderRoadmap();
+  route();
+})();
+
+</script>
+</body>
+</html>
